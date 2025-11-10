@@ -1,0 +1,987 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2368,
+        208
+      ],
+      "id": "3ad81363-0e17-45b5-ab60-5a2ea3ff69c8",
+      "name": "Daily Report"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2368,
+        592
+      ],
+      "id": "9c236bfe-431e-47ec-be90-22268fa0056f",
+      "name": "Monthly Report"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                6
+              ],
+              "triggerAtHour": 20
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2368,
+        400
+      ],
+      "id": "dde8d28d-6897-4891-bd24-1713a5587ab8",
+      "name": "Weekly Report"
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1w3TVkThygaBNRIAdK1xITN_j-8jqpd2vuTjQlRk9QFk",
+          "mode": "list",
+          "cachedResultName": "Employee List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1w3TVkThygaBNRIAdK1xITN_j-8jqpd2vuTjQlRk9QFk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1w3TVkThygaBNRIAdK1xITN_j-8jqpd2vuTjQlRk9QFk/edit#gid=0"
+        },
+        "combineFilters": "OR",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1248,
+        496
+      ],
+      "id": "d97fdf13-b4fc-4842-8f68-29b8a90d93c8",
+      "name": "Get Users",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "deyw3exHYjHh8I0T",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "7252f0cf-b33c-4b44-8f14-fbcc271077f7",
+              "name": "={{ $json.Key }}",
+              "value": "={{ $json.Value }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -1472,
+        496
+      ],
+      "id": "6854c5d4-5ecd-4c0b-9c86-5462051fa8f6",
+      "name": "Set Base Configuration",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1axbyWnWHpUubBxbCOSrWwnWnMjWdfTLmZFvux1O5H-o",
+          "mode": "list",
+          "cachedResultName": "Base Configuration",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1axbyWnWHpUubBxbCOSrWwnWnMjWdfTLmZFvux1O5H-o/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1axbyWnWHpUubBxbCOSrWwnWnMjWdfTLmZFvux1O5H-o/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        -1696,
+        496
+      ],
+      "id": "2baab2d0-ea72-4c19-bd1b-021333d7c9fe",
+      "name": "Get Base Configuration",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "deyw3exHYjHh8I0T",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/user/orgs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -1024,
+        112
+      ],
+      "id": "05982e53-51f4-44a2-a538-54013acf8644",
+      "name": "Get Organizations",
+      "executeOnce": true,
+      "credentials": {
+        "githubApi": {
+          "id": "ShW6J1kv6Yn4hj67",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "organization",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $json.login }}",
+          "mode": "name"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -800,
+        112
+      ],
+      "id": "9543b027-1e62-4d8c-9455-9a927a605714",
+      "name": "Get Repositories",
+      "webhookId": "d343075a-1316-446f-bbd2-a63812de4e5f",
+      "executeOnce": false,
+      "credentials": {
+        "githubApi": {
+          "id": "ShW6J1kv6Yn4hj67",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "={{ $input.item.json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -352,
+        304
+      ],
+      "id": "b88cedf0-279d-4afb-8eb1-7c19312d1f09",
+      "name": "Get Commit Details",
+      "credentials": {
+        "githubApi": {
+          "id": "ShW6J1kv6Yn4hj67",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const commits = $input.all();\n\n// Create an object to store the counts\n/** @type {{ [key: string]: { user: object, additions: number, deletions: number, total: number } }} */\nlet lineChanges = {};\n\n// Group and count commits by username\ncommits.forEach(commit => {\n  const user = commit.json.author; // Save the complete user object\n  const username = user.login; // Username for grouping\n  const additions = commit.json.stats.additions || 0;\n  const deletions = commit.json.stats.deletions || 0;\n  const totalChanges = additions + deletions;\n\n  // If the user is already in the report, update their line change counts\n  if (lineChanges[username]) {\n    lineChanges[username].additions += additions;\n    lineChanges[username].deletions += deletions;\n    lineChanges[username].total += totalChanges;\n  } else {\n    lineChanges[username] = {\n      user,\n      additions,\n      deletions,\n      total: totalChanges\n    };\n  }\n});\n\n// Convert the result into an array of objects with username and commit count\nconst result = Object.keys(lineChanges).map(username => ({\n  user: lineChanges[username].user, // Include the complete user object\n  stats: {\n    additions: lineChanges[username].additions,\n    deletions: lineChanges[username].deletions,\n    total: lineChanges[username].total\n  } // Include additions, deletions, and total\n}));\n\n// Return the final report in n8n format\nreturn { json: { line_changes_report: result } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        304
+      ],
+      "id": "01504260-1eba-4a1b-ab3c-4020ac251c9c",
+      "name": "Line Changes Count"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "issues",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        496
+      ],
+      "id": "84aa286f-9c55-4f30-8c55-d331b74d029f",
+      "name": "Split Out"
+    },
+    {
+      "parameters": {
+        "jsCode": "const issues = $input.all(); // All issues from the previous HTTP request node\n\n// Create an object to store the grouped issues by assignee\n/** @type {{ [key: string]: any[] }} */\nlet groupedByAssignee = {};\n\n// Loop through each issue\nissues.forEach(issue => {\n  // Check if assignee exists and is not null\n  if (issue.json.fields.assignee != null) {\n    const assignee = issue.json.fields.assignee;  // Store the whole assignee object\n    const task = issue.json;\n\n    // If the assignee is already in the object, add the task to their list\n    if (groupedByAssignee[assignee.accountId]) {\n      groupedByAssignee[assignee.accountId].tasks.push(task);\n    } else {\n      // Initialize a new entry for the assignee if not present\n      groupedByAssignee[assignee.accountId] = {\n        assignee: assignee,  // Store the complete assignee object\n        tasks: [task]        // Start with the current task\n      };\n    }\n  } else {\n    console.log(`No Assignee for Issue: ${issue.json.key}`);\n  }\n});\n\n// Convert the grouped object into an array of assignee and tasks\nconst result = Object.keys(groupedByAssignee).map(assigneeId => ({\n  assignee: groupedByAssignee[assigneeId].assignee,  // Include the full assignee object\n  tasks: groupedByAssignee[assigneeId].tasks        // Include the list of tasks\n}));\n\n// Return the result with the grouped assignee and their tasks in the expected format\nreturn { json: { done_tasks_report: result } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        496
+      ],
+      "id": "a82d19d9-4bc1-4ab3-a5bc-58c45bdd3902",
+      "name": "Done Tasks",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "issues",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -352,
+        688
+      ],
+      "id": "646fbf5d-0231-4836-81a5-30088be0045a",
+      "name": "Split Out Bugs"
+    },
+    {
+      "parameters": {
+        "jsCode": "// --- Helper: Distinct function based on issue key ---\nfunction distinctTasks(tasks) {\n  return tasks.filter((task, index, self) =>\n    self.findIndex(t => t.key === task.key) === index\n  );\n}\n\nconst issues = $input.all(); // All issues from the previous HTTP request node\n\n// Create an object to store the grouped issues by assignee\n/** @type {{ [key: string]: { assignee: {}, tasks: [{}] } }} */\nlet groupedByAssignee = {};\n\n// Loop through each issue\nissues.forEach(issue => {\n  // Check if assignee exists and is not null\n  if (issue.json.fields.assignee != null) {\n    const assignee = issue.json.fields.assignee;  // Store the whole assignee object\n    const task = issue.json;\n\n    // If the assignee is already in the object, add the task to their list\n    if (groupedByAssignee[assignee.accountId]) {\n      groupedByAssignee[assignee.accountId].tasks.push(task);\n    } else {\n      // Initialize a new entry for the assignee if not present\n      groupedByAssignee[assignee.accountId] = {\n        assignee: assignee,  // Store the complete assignee object\n        tasks: [task]        // Start with the current task\n      };\n    }\n  } else {\n    console.log(`No Assignee for Issue: ${issue.json.key}`);\n  }\n});\n\n// Convert the grouped object into an array of assignee and tasks\nconst result = Object.keys(groupedByAssignee).map(assigneeId => ({\n  assignee: groupedByAssignee[assigneeId].assignee,  // Include the full assignee object\n  tasks: distinctTasks(groupedByAssignee[assigneeId].tasks) // Include the list of tasks\n}));\n\n// Return the result with the grouped assignee and their tasks in the expected format\nreturn { json: { bugs_report: result } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        688
+      ],
+      "id": "8ce36fb6-4391-4554-9e83-c7c009a76c10",
+      "name": "Bugs",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 5,
+        "options": {
+          "includeUnpaired": true
+        }
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        96,
+        256
+      ],
+      "id": "12fbf61f-6e8e-4d02-9d54-60c47e03716b",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "jsCode": "// --- Helper: Distinct function based on issue key ---\nfunction distinctTasks(tasks = []) {\n  return tasks.filter((task, index, self) =>\n    self.findIndex(t => t.key === task.key) === index\n  );\n}\n\n// --- Input data from previous nodes ---\nconst pr_report = $input.first().json.pr_report;\nconst commit_report = $input.first().json.commit_report;\nconst line_changes_report = $input.first().json.line_changes_report;\nconst done_tasks_report = $input.first().json.done_tasks_report;\nconst bugs_report = $input.first().json.bugs_report;\n\n// --- Data structures ---\n/** @type {{ [key: string]: any }} */\nlet githubReport = {};  // key = user.login\n/** @type {{ [key: string]: any }} */\nlet jiraReport = {};    // key = assignee.accountId\n\n// --- Process PR report ---\nfor (const item of pr_report) {\n  const userLogin = item.user?.login;\n  if (!userLogin) continue;\n\n  if (!githubReport[userLogin]) {\n    githubReport[userLogin] = {\n      user: item.user,\n      prs: item.prs,\n      commits: [],\n      stats: { additions: 0, deletions: 0, total: 0 },\n    };\n  } else {\n    githubReport[userLogin].prs = item.prs\n  }\n}\n\n// --- Process commit report ---\nfor (const item of commit_report) {\n  const userLogin = item.user?.login;\n  if (!userLogin) continue;\n\n  if (!githubReport[userLogin]) {\n    githubReport[userLogin] = {\n      user: item.user,\n      prs: [],\n      commits: item.commits,\n      stats: { additions: 0, deletions: 0, total: 0 },\n    };\n  } else {\n    githubReport[userLogin].commits = item.commits\n  }\n}\n\n// --- Process line changes ---\nfor (const item of line_changes_report) {\n  const userLogin = item.user?.login;\n  if (!userLogin) continue;\n\n  if (!githubReport[userLogin]) {\n    githubReport[userLogin] = {\n      user: item.user,\n      prs: [],\n      commits: [],\n      stats: { ...item.stats },\n    };\n  } else {\n    const stats = githubReport[userLogin].stats;\n    stats.additions += item.stats.additions;\n    stats.deletions += item.stats.deletions;\n    stats.total += item.stats.total;\n  }\n}\n\n// --- Process Jira done tasks ---\nfor (const item of done_tasks_report) {\n  const assignee = item.assignee;\n  if (!assignee || !assignee.accountId) continue;\n\n  const id = assignee.accountId;\n  if (!jiraReport[id]) {\n    jiraReport[id] = {\n      user: assignee,\n      bugs: 0,\n      doneTasks: item.tasks,\n    };\n  } else {\n    jiraReport[id].doneTasks.push(...item.tasks);\n  }\n}\n\n// --- Process Jira bugs ---\nfor (const item of bugs_report) {\n  const assignee = item.assignee;\n  if (!assignee || !assignee.accountId) continue;\n\n  const id = assignee.accountId;\n  if (!jiraReport[id]) {\n    jiraReport[id] = {\n      user: assignee,\n      doneTasks: [],\n      bugTasks: item.tasks,\n    };\n  } else {\n    if (!jiraReport[id].bugTasks) jiraReport[id].bugTasks = [];\n    jiraReport[id].bugTasks.push(...item.tasks);\n  }\n}\n\n// --- Combine GitHub report ---\nconst githubReportJsonArray = Object.values(githubReport).map(item => ({\n  user: item.user,\n  prs_count: item.prs.length,\n  prs: item.prs.map(pr => ({\n    title: pr.title,\n    url: pr.html_url,\n    created_at: pr.created_at,\n    merged_at: pr.merged_at,\n  })),\n  commits_count: item.commits.length,\n  commits: item.commits.map(commit => ({\n    message: commit.commit?.message || 'No message',\n    url: commit.html_url,\n    date: commit.commit?.author?.date || commit.commit?.committer?.date,\n  })),\n  stats: item.stats\n}));\n\n// --- Combine Jira report ---\nconst jiraReportJsonArray = Object.values(jiraReport).map(item => ({\n  user: item.user,\n  doneTasks: distinctTasks(item.doneTasks)?.map(t => ({\n    key: t.key,\n    summary: t.fields?.summary,\n    status: t.fields?.status?.name,\n    link: `https://techvention-new.atlassian.net/browse/${t.key}`\n  })) || [],\n  bugTasks: distinctTasks(item.bugTasks)?.map(t => ({\n    key: t.key,\n    summary: t.fields?.summary,\n    status: t.fields?.status?.name,\n    link: `https://techvention-new.atlassian.net/browse/${t.key}`\n  })) || [],\n}));\n\n// --- Return for n8n ---\nreturn [\n  {\n    json: {\n      githubReport: githubReportJsonArray,\n      jiraReport: jiraReportJsonArray,\n    },\n  },\n];\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        320,
+        304
+      ],
+      "id": "3cdccb45-6ed1-4c07-95ff-9f2b2151b2b1",
+      "name": "Final Report",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "jsCode": "const items = $input.all(); // all items\nlet report = /** @type {any[]} */ ([]);\n\n// get date X days ago\nconst daysAgo = new Date($('Set Days').last().json.startDate);\nconsole.log(`Real Data: ${daysAgo}`);\n\n// filter items by created_at timestamp\nconst recentItems = items.filter(i => {\n  const created = new Date(i.json.created_at);\n  console.log(created);\n  return created >= daysAgo;\n});\n\nfor (const item of recentItems) {\n  const user = item.json.user;\n\n  if (!report.some(r => r.user.login === user.login)) {\n    const prs = recentItems.filter(i => i.json.user.login === user.login);\n\n    report.push({\n      user,\n      prs: prs.map((item) => item.json),\n    });\n  }\n}\n\nreturn { json: { pr_report: report } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        -80
+      ],
+      "id": "ee4abfcc-ed10-4fc2-834e-d715b3405874",
+      "name": "PR Report",
+      "executeOnce": false
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create an object to store the counts\nconst commits = $input.all(); // All commits from the previous node\n\n// Create an object to store the counts\n/** @type {{ [key: string]: {user: {}, commits: [{}]} }} */\nlet commitReport = {};\n\n// Group commits by the author's login (as the key) and store the complete user object\ncommits.forEach(commit => {\n  if (!commit.json.error) {\n    const username = commit.json.author.login; // Using 'login' as the key for grouping (you can adjust this if necessary)\n    const user = commit.json.author;  // Complete user object\n\n    // If the user already exists in commitReport, add the commit to their list\n    if (commitReport[username]) {\n      commitReport[username].commits.push(commit.json);\n    } else {\n      // If the user is not already in the object, initialize their entry\n      commitReport[username] = {\n        user: user,           // Store the complete user object\n        commits: [commit.json]     // Initialize the commit list with the current commit\n      };\n    }\n  }\n});\n\n// Convert the result into an array of objects with username and commit details\nconst result = Object.keys(commitReport).map(username => ({\n  user: commitReport[username].user,  // Include the complete user object\n  commits: commitReport[username].commits  // Include the list of commits\n}));\n\n// Return the result in the expected n8n format\nreturn { json: { commit_report: result } };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -128,
+        112
+      ],
+      "id": "5ed1ca1b-01c0-4f00-8386-f1bced26a423",
+      "name": "Commit Report"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "35518e41-34f0-448b-ab8b-83e8863f6fb7",
+              "name": "TYPE",
+              "value": "daily",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2144,
+        208
+      ],
+      "id": "ef3b17bd-de19-4470-97d5-efc6c65587a5",
+      "name": "Set Daily Type"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b858c548-a7fa-4073-ba0f-1325719200ae",
+              "name": "TYPE",
+              "value": "monthly",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2144,
+        592
+      ],
+      "id": "dcfcf698-718c-446b-9d35-cbe5d06f8abd",
+      "name": "Set Monthly Type"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e805db97-d4d8-48da-bcd6-8dc6c1b6e415",
+              "name": "TYPE",
+              "value": "weekly",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -2144,
+        400
+      ],
+      "id": "2dc1f2db-3555-47e1-b3d6-66234015f678",
+      "name": "Set Weekly Type"
+    },
+    {
+      "parameters": {
+        "jsCode": "const now = new Date();\nlet startDate = new Date(now);\nlet days;\n\nif ($input.first().json[\"TYPE\"] === \"daily\") {\n  startDate = new Date(now);\n  startDate.setDate(now.getDate() - 1); // 24 hours ago\n  days = 1;\n} else if ($input.first().json[\"TYPE\"] === \"weekly\") {\n  startDate = new Date(now);\n  startDate.setDate(now.getDate() - 7); // 7 days ago\n  days = 7;\n} else if ($input.first().json[\"TYPE\"] === \"monthly\") {\n  startDate = new Date(now);\n  startDate.setDate(now.getDate() - 30); // 30 days ago\n  days = 30;\n}\n\nreturn { json: { startDate: startDate.toISOString(), days: days } };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1920,
+        496
+      ],
+      "id": "592b60e4-e6e6-4d0a-8fcb-45ab7189a570",
+      "name": "Set Days"
+    },
+    {
+      "parameters": {
+        "resource": "repository",
+        "operation": "getPullRequests",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $('Set Base Configuration').item.json.GITHUB_ORGANIZATION }}",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $json.name }}",
+          "mode": "name"
+        },
+        "returnAll": true,
+        "getRepositoryPullRequestsFilters": {
+          "state": "all"
+        }
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -352,
+        -80
+      ],
+      "id": "39a2f153-3666-426a-abe3-a847c046bdcc",
+      "name": "Get All Pull requests",
+      "webhookId": "9e9eaa17-a072-400b-ab1d-cd84b5250398",
+      "credentials": {
+        "githubApi": {
+          "id": "ShW6J1kv6Yn4hj67",
+          "name": "GitHub account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $json.owner.login }}/{{ $json.name }}/commits",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "since",
+              "value": "={{ $('Set Days').item.json.startDate }}"
+            },
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -576,
+        208
+      ],
+      "id": "7ad2a46b-f089-4fe6-82c4-2fd51553ed5f",
+      "name": "Get Commits (Days)",
+      "credentials": {
+        "githubApi": {
+          "id": "ShW6J1kv6Yn4hj67",
+          "name": "GitHub account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://techvention-new.atlassian.net/rest/api/3/search/jql",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "jql",
+              "value": "=status=\"Done\" OR status changed TO \"Done\" DURING (-{{$('Set Days').item.json.days}}d, now())"
+            },
+            {
+              "name": "fields",
+              "value": "assignee, summary, status"
+            },
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -576,
+        496
+      ],
+      "id": "8c582ead-9982-424d-bc39-e60fac3cde7d",
+      "name": "Get Done Issues (Days)",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "sc8UaWiL0n6GW5b3",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://techvention-new.atlassian.net/rest/api/3/search/jql",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "jql",
+              "value": "=issuetype = \"Bug\" AND created >= -{{$('Set Days').item.json.days}}d"
+            },
+            {
+              "name": "fields",
+              "value": "assignee, summary, status"
+            },
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -576,
+        688
+      ],
+      "id": "3c759f6d-ba96-46a4-a3a6-c8180e13c524",
+      "name": "Get Bugs (Days)",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "sc8UaWiL0n6GW5b3",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// === Input data ===\nconst mapping = $(\"Get Users\").all(); // from Google Sheets node\nconst githubReport = $input.first().json.githubReport; // GitHub report array\nconst jiraReport = $input.first().json.jiraReport; // Jira report array\n\n// === Helper: Find user safely ===\nfunction findGithub(username) {\n  return githubReport.find(u => u.user?.login?.toLowerCase() === username.toLowerCase());\n}\n\nfunction findJira(accountId) {\n  return jiraReport.find(u =>\n    u.user?.accountId === accountId\n  );\n}\n\n// === Final merged report ===\nconst finalReport = mapping.map(user => {\n  const gh = findGithub(user.json.Github_UserName);\n  const jr = findJira(user.json.Jira_User_Id);\n\n  return {\n    Name: user.json.Name,\n    Github_UserName: user.json.Github_UserName,\n    Jira_User_Id: user.json.Jira_User_Id,\n    Slack_User_id: user.json.Slack_User_id || \"\",\n    prs: gh?.prs || 0,\n    commits: gh?.commits || 0,\n    additions: gh?.stats?.additions || 0,\n    deletions: gh?.stats?.deletions || 0,\n    total: gh?.stats?.total || 0,\n    doneTasks: jr?.doneTasks || 0,\n    bugs: jr?.bugTasks || 0\n  };\n});\n\n// === Return for next node ===\nreturn finalReport.map(r => ({ json: r }));\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        528,
+        304
+      ],
+      "id": "9f91cec1-2702-4a3e-b0f8-04808c2389c8",
+      "name": "Mapping"
+    },
+    {
+      "parameters": {
+        "jsCode": "const triggerdays = $(\"Set Days\").last().json.days;\nconst report = $input.all().flatMap(i => i.json); // ensure flattened array\n\nlet message = `*🧠 Techvention ${triggerdays}-Day Developer Performance Report*\\n\\n`;\n\nfor (const r of report) {\n  // Basic info\n  message += `*👨‍💻 ${r.Name}*  (_${r.Github_UserName}_) <@${r.Slack_User_id}>\\n`;\n  message += `• *PRs:* ${Array.isArray(r.prs) ? r.prs.length : 0}\\n`;\n  message += `• *Commits:* ${Array.isArray(r.commits) ? r.commits.length : 0}\\n`;\n  message += `• *Code Stats:* +${r.additions} / -${r.deletions} (total ${r.total})\\n`;\n  message += `• *Done Tasks:* ${Array.isArray(r.doneTasks) ? r.doneTasks.length : 0}\\n`;\n  message += `• *Bugs:* ${Array.isArray(r.bugs) ? r.bugs.length : 0}\\n`;\n\n  // PR details\n  if (r.prs?.length) {\n    message += `\\n*🧩 Pull Requests:*\\n`;\n    r.prs.forEach(pr => {\n      message += `• <${pr.url}|${pr.title}> (${pr.created_at?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Commit details\n  if (r.commits?.length) {\n    message += `\\n*💾 Commits:*\\n`;\n    r.commits.forEach(c => {\n      const msg = c.message.length > 50 ? c.message.slice(0, 50) + \"…\" : c.message;\n      message += `• <${c.url}|${msg}> (${c.date?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Done tasks\n  if (r.doneTasks?.length) {\n    message += `\\n*✅ Done Tasks:*\\n`;\n    r.doneTasks.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  // Bug tasks\n  if (r.bugs?.length) {\n    message += `\\n*🐞 Bugs:*\\n`;\n    r.bugs.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  message += `\\n──────────────────────────────\\n`;\n}\n\n// Output for Slack\nreturn [{ json: { text: message } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        736,
+        304
+      ],
+      "id": "2f90858d-b939-46e3-8516-86b66472d3e7",
+      "name": "Message Creation"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08PEUFAY49",
+          "mode": "list",
+          "cachedResultName": "daily_status"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        944,
+        304
+      ],
+      "id": "3f386fc7-cdcf-4c3b-b77f-4ee8a4f92773",
+      "name": "Send a message",
+      "webhookId": "b05869d9-de3e-449e-9180-7979fc25d9b0",
+      "credentials": {
+        "slackApi": {
+          "id": "00tZfPmGstfzw8u4",
+          "name": "Slack account"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Daily Report": {
+      "main": [
+        [
+          {
+            "node": "Set Daily Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monthly Report": {
+      "main": [
+        [
+          {
+            "node": "Set Monthly Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Report": {
+      "main": [
+        [
+          {
+            "node": "Set Weekly Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Users": {
+      "main": [
+        [
+          {
+            "node": "Get Done Issues (Days)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Bugs (Days)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Organizations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Base Configuration": {
+      "main": [
+        [
+          {
+            "node": "Get Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Base Configuration": {
+      "main": [
+        [
+          {
+            "node": "Set Base Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Organizations": {
+      "main": [
+        [
+          {
+            "node": "Get Repositories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Repositories": {
+      "main": [
+        [
+          {
+            "node": "Get Commits (Days)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get All Pull requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Commit Details": {
+      "main": [
+        [
+          {
+            "node": "Line Changes Count",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Line Changes Count": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "Done Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Done Tasks": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Split Out Bugs": {
+      "main": [
+        [
+          {
+            "node": "Bugs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Bugs": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Final Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Final Report": {
+      "main": [
+        [
+          {
+            "node": "Mapping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PR Report": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit Report": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Set Daily Type": {
+      "main": [
+        [
+          {
+            "node": "Set Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Monthly Type": {
+      "main": [
+        [
+          {
+            "node": "Set Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Weekly Type": {
+      "main": [
+        [
+          {
+            "node": "Set Days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Days": {
+      "main": [
+        [
+          {
+            "node": "Get Base Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Pull requests": {
+      "main": [
+        [
+          {
+            "node": "PR Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Commits (Days)": {
+      "main": [
+        [
+          {
+            "node": "Get Commit Details",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Commit Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Done Issues (Days)": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Bugs (Days)": {
+      "main": [
+        [
+          {
+            "node": "Split Out Bugs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mapping": {
+      "main": [
+        [
+          {
+            "node": "Message Creation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message Creation": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "c2b636201969d0e9ac96456ec18596ab2eef5138837d69d65cf3762e36b2d154"
+  }
+}
