@@ -13,10 +13,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -2368,
-        208
+        -2144,
+        144
       ],
-      "id": "3ad81363-0e17-45b5-ab60-5a2ea3ff69c8",
+      "id": "c10287af-7c2e-4566-b536-c7e38893c06b",
       "name": "Daily Report"
     },
     {
@@ -32,10 +32,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -2368,
-        592
+        -2144,
+        528
       ],
-      "id": "9c236bfe-431e-47ec-be90-22268fa0056f",
+      "id": "f5d773d6-8938-441a-aba9-3dd0a119d24b",
       "name": "Monthly Report"
     },
     {
@@ -55,10 +55,10 @@
       "type": "n8n-nodes-base.scheduleTrigger",
       "typeVersion": 1.2,
       "position": [
-        -2368,
-        400
+        -2144,
+        336
       ],
-      "id": "dde8d28d-6897-4891-bd24-1713a5587ab8",
+      "id": "9841dce2-9329-447f-8555-9c1e111c8a5c",
       "name": "Weekly Report"
     },
     {
@@ -83,15 +83,15 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        -1248,
-        496
+        -1024,
+        432
       ],
-      "id": "d97fdf13-b4fc-4842-8f68-29b8a90d93c8",
+      "id": "de47dd01-6dcc-46ac-8972-2bf7ef313a26",
       "name": "Get Users",
       "executeOnce": true,
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "deyw3exHYjHh8I0T",
+          "id": "hMrWlRlZgnDfaGnB",
           "name": "Google Sheets account"
         }
       }
@@ -113,10 +113,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -1472,
-        496
+        -1248,
+        432
       ],
-      "id": "6854c5d4-5ecd-4c0b-9c86-5462051fa8f6",
+      "id": "acf1f15a-a9d7-4399-a5d2-9507b9b33966",
       "name": "Set Base Configuration",
       "executeOnce": false
     },
@@ -141,14 +141,14 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        -1696,
-        496
+        -1472,
+        432
       ],
-      "id": "2baab2d0-ea72-4c19-bd1b-021333d7c9fe",
+      "id": "4f291be3-ea83-48be-b3df-eb3baa6775a3",
       "name": "Get Base Configuration",
       "credentials": {
         "googleSheetsOAuth2Api": {
-          "id": "deyw3exHYjHh8I0T",
+          "id": "hMrWlRlZgnDfaGnB",
           "name": "Google Sheets account"
         }
       }
@@ -172,15 +172,15 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -1024,
-        112
+        -800,
+        48
       ],
-      "id": "05982e53-51f4-44a2-a538-54013acf8644",
+      "id": "b265a7b2-db52-45b7-ab63-e7f0ef3093e9",
       "name": "Get Organizations",
       "executeOnce": true,
       "credentials": {
         "githubApi": {
-          "id": "ShW6J1kv6Yn4hj67",
+          "id": "SEYz6E5AQBY7Meoc",
           "name": "GitHub account"
         }
       }
@@ -198,16 +198,16 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        -800,
-        112
+        -576,
+        48
       ],
-      "id": "9543b027-1e62-4d8c-9455-9a927a605714",
+      "id": "31edc266-8e00-43ef-815c-3ce28a05ef92",
       "name": "Get Repositories",
       "webhookId": "d343075a-1316-446f-bbd2-a63812de4e5f",
       "executeOnce": false,
       "credentials": {
         "githubApi": {
-          "id": "ShW6J1kv6Yn4hj67",
+          "id": "SEYz6E5AQBY7Meoc",
           "name": "GitHub account"
         }
       }
@@ -222,14 +222,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -352,
-        304
+        -128,
+        240
       ],
-      "id": "b88cedf0-279d-4afb-8eb1-7c19312d1f09",
+      "id": "2f5a5107-c494-469e-add0-e8080db5a60c",
       "name": "Get Commit Details",
       "credentials": {
         "githubApi": {
-          "id": "ShW6J1kv6Yn4hj67",
+          "id": "SEYz6E5AQBY7Meoc",
           "name": "GitHub account"
         }
       }
@@ -241,10 +241,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -128,
-        304
+        96,
+        240
       ],
-      "id": "01504260-1eba-4a1b-ab3c-4020ac251c9c",
+      "id": "b5c19670-9325-47c9-b673-b6dd3466fe23",
       "name": "Line Changes Count"
     },
     {
@@ -255,10 +255,10 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        -352,
-        496
+        -128,
+        432
       ],
-      "id": "84aa286f-9c55-4f30-8c55-d331b74d029f",
+      "id": "375f4cb4-b8d5-49f3-9d89-2431bc01227e",
       "name": "Split Out"
     },
     {
@@ -268,10 +268,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -128,
-        496
+        96,
+        432
       ],
-      "id": "a82d19d9-4bc1-4ab3-a5bc-58c45bdd3902",
+      "id": "45025502-9bee-4a88-a7a3-2fa25bc7f930",
       "name": "Done Tasks",
       "executeOnce": false
     },
@@ -283,10 +283,10 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        -352,
-        688
+        -128,
+        624
       ],
-      "id": "646fbf5d-0231-4836-81a5-30088be0045a",
+      "id": "0804b680-b5a8-4fc7-a1b0-37b1eee082a9",
       "name": "Split Out Bugs"
     },
     {
@@ -296,10 +296,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -128,
-        688
+        96,
+        624
       ],
-      "id": "8ce36fb6-4391-4554-9e83-c7c009a76c10",
+      "id": "ae1291a7-790c-456b-a001-d30e9d2d2acb",
       "name": "Bugs",
       "executeOnce": false
     },
@@ -315,10 +315,10 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        96,
-        256
+        320,
+        192
       ],
-      "id": "12fbf61f-6e8e-4d02-9d54-60c47e03716b",
+      "id": "4a4b6e8f-ec50-45c9-ab9a-2a497343b514",
       "name": "Merge"
     },
     {
@@ -328,10 +328,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        320,
-        304
+        544,
+        240
       ],
-      "id": "3cdccb45-6ed1-4c07-95ff-9f2b2151b2b1",
+      "id": "0d86a5dc-5404-444f-9e03-e22448dbb42b",
       "name": "Final Report",
       "executeOnce": false
     },
@@ -342,10 +342,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -128,
-        -80
+        96,
+        -144
       ],
-      "id": "ee4abfcc-ed10-4fc2-834e-d715b3405874",
+      "id": "ca0a00e2-562b-498e-8c66-3ea343c6954b",
       "name": "PR Report",
       "executeOnce": false
     },
@@ -356,10 +356,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -128,
-        112
+        96,
+        48
       ],
-      "id": "5ed1ca1b-01c0-4f00-8386-f1bced26a423",
+      "id": "43fd8155-541a-44a3-93c4-17cefe36313b",
       "name": "Commit Report"
     },
     {
@@ -379,10 +379,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -2144,
-        208
+        -1920,
+        144
       ],
-      "id": "ef3b17bd-de19-4470-97d5-efc6c65587a5",
+      "id": "ec121991-e5a9-43b0-b667-8c69952bcfcb",
       "name": "Set Daily Type"
     },
     {
@@ -402,10 +402,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -2144,
-        592
+        -1920,
+        528
       ],
-      "id": "dcfcf698-718c-446b-9d35-cbe5d06f8abd",
+      "id": "e9c4d1eb-bdc0-40aa-949b-5354ca8df136",
       "name": "Set Monthly Type"
     },
     {
@@ -425,10 +425,10 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -2144,
-        400
+        -1920,
+        336
       ],
-      "id": "2dc1f2db-3555-47e1-b3d6-66234015f678",
+      "id": "e0fa5ba8-3926-4c51-aa32-f1df2b2ca7f2",
       "name": "Set Weekly Type"
     },
     {
@@ -438,10 +438,10 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        -1920,
-        496
+        -1696,
+        432
       ],
-      "id": "592b60e4-e6e6-4d0a-8fcb-45ab7189a570",
+      "id": "e1afb694-bba1-49d4-9f19-e748ae5b4b1b",
       "name": "Set Days"
     },
     {
@@ -466,15 +466,15 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        -352,
-        -80
+        -128,
+        -144
       ],
-      "id": "39a2f153-3666-426a-abe3-a847c046bdcc",
+      "id": "067e42de-2f0f-492f-a299-3eb3de925891",
       "name": "Get All Pull requests",
       "webhookId": "9e9eaa17-a072-400b-ab1d-cd84b5250398",
       "credentials": {
         "githubApi": {
-          "id": "ShW6J1kv6Yn4hj67",
+          "id": "SEYz6E5AQBY7Meoc",
           "name": "GitHub account"
         }
       },
@@ -503,14 +503,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -576,
-        208
+        -352,
+        144
       ],
-      "id": "7ad2a46b-f089-4fe6-82c4-2fd51553ed5f",
+      "id": "b37392f7-0a62-486c-b80d-4e496cc654b3",
       "name": "Get Commits (Days)",
       "credentials": {
         "githubApi": {
-          "id": "ShW6J1kv6Yn4hj67",
+          "id": "SEYz6E5AQBY7Meoc",
           "name": "GitHub account"
         }
       },
@@ -543,14 +543,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -576,
-        496
+        -352,
+        432
       ],
-      "id": "8c582ead-9982-424d-bc39-e60fac3cde7d",
+      "id": "fd7a1fe8-45e9-44bb-ba3d-6879fc60d3da",
       "name": "Get Done Issues (Days)",
       "credentials": {
         "jiraSoftwareCloudApi": {
-          "id": "sc8UaWiL0n6GW5b3",
+          "id": "rc52vTNzhFT3n15c",
           "name": "Jira SW Cloud account"
         }
       }
@@ -582,14 +582,14 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -576,
-        688
+        -352,
+        624
       ],
-      "id": "3c759f6d-ba96-46a4-a3a6-c8180e13c524",
+      "id": "f8b24f3c-c559-4a45-8984-e530ba108997",
       "name": "Get Bugs (Days)",
       "credentials": {
         "jiraSoftwareCloudApi": {
-          "id": "sc8UaWiL0n6GW5b3",
+          "id": "rc52vTNzhFT3n15c",
           "name": "Jira SW Cloud account"
         }
       }
@@ -601,23 +601,23 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        528,
-        304
+        752,
+        240
       ],
-      "id": "9f91cec1-2702-4a3e-b0f8-04808c2389c8",
+      "id": "65b0eabf-132b-4566-b5e8-07cfd528fa78",
       "name": "Mapping"
     },
     {
       "parameters": {
-        "jsCode": "const triggerdays = $(\"Set Days\").last().json.days;\nconst report = $input.all().flatMap(i => i.json); // ensure flattened array\n\nlet message = `*🧠 Techvention ${triggerdays}-Day Developer Performance Report*\\n\\n`;\n\nfor (const r of report) {\n  // Basic info\n  message += `*👨‍💻 ${r.Name}*  (_${r.Github_UserName}_) <@${r.Slack_User_id}>\\n`;\n  message += `• *PRs:* ${Array.isArray(r.prs) ? r.prs.length : 0}\\n`;\n  message += `• *Commits:* ${Array.isArray(r.commits) ? r.commits.length : 0}\\n`;\n  message += `• *Code Stats:* +${r.additions} / -${r.deletions} (total ${r.total})\\n`;\n  message += `• *Done Tasks:* ${Array.isArray(r.doneTasks) ? r.doneTasks.length : 0}\\n`;\n  message += `• *Bugs:* ${Array.isArray(r.bugs) ? r.bugs.length : 0}\\n`;\n\n  // PR details\n  if (r.prs?.length) {\n    message += `\\n*🧩 Pull Requests:*\\n`;\n    r.prs.forEach(pr => {\n      message += `• <${pr.url}|${pr.title}> (${pr.created_at?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Commit details\n  if (r.commits?.length) {\n    message += `\\n*💾 Commits:*\\n`;\n    r.commits.forEach(c => {\n      const msg = c.message.length > 50 ? c.message.slice(0, 50) + \"…\" : c.message;\n      message += `• <${c.url}|${msg}> (${c.date?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Done tasks\n  if (r.doneTasks?.length) {\n    message += `\\n*✅ Done Tasks:*\\n`;\n    r.doneTasks.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  // Bug tasks\n  if (r.bugs?.length) {\n    message += `\\n*🐞 Bugs:*\\n`;\n    r.bugs.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  message += `\\n──────────────────────────────\\n`;\n}\n\n// Output for Slack\nreturn [{ json: { text: message } }];"
+        "jsCode": "const triggerdays = $(\"Set Days\").last().json.days;\nconst report = $input.all().flatMap(i => i.json); // ensure flattened array\n\n// Determine report type based on days\nlet reportType = \"\";\nif (triggerdays == 1) reportType = \"Daily\";\nelse if (triggerdays == 7) reportType = \"Weekly\";\nelse if (triggerdays == 30) reportType = \"Monthly\";\nelse reportType = `${triggerdays}-Day`;\n\n// Start building message\nlet message = `*🧠 Techvention ${reportType} Developer Performance Report*\\n`;\nmessage += `Hey <@U033AAC2DQD> and <@U04BAQRBSGZ>, here is your ${reportType.toLowerCase()} report!\\n\\n`;\n\nfor (const r of report) {\n  // Basic info\n  message += `*👨‍💻 ${r.Name}*  (_${r.Github_UserName}_) <@${r.Slack_User_id}>\\n`;\n  message += `• *PRs:* ${Array.isArray(r.prs) ? r.prs.length : 0}\\n`;\n  message += `• *Commits:* ${Array.isArray(r.commits) ? r.commits.length : 0}\\n`;\n  message += `• *Code Stats:* +${r.additions} / -${r.deletions} (total ${r.total})\\n`;\n  message += `• *Done Tasks:* ${Array.isArray(r.doneTasks) ? r.doneTasks.length : 0}\\n`;\n  message += `• *Bugs:* ${Array.isArray(r.bugs) ? r.bugs.length : 0}\\n`;\n\n  // PR details\n  if (r.prs?.length) {\n    message += `\\n*🧩 Pull Requests:*\\n`;\n    r.prs.forEach(pr => {\n      message += `• <${pr.url}|${pr.title}> (${pr.created_at?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Commit details\n  if (r.commits?.length) {\n    message += `\\n*💾 Commits:*\\n`;\n    r.commits.forEach(c => {\n      const msg = c.message.length > 50 ? c.message.slice(0, 50) + \"…\" : c.message;\n      message += `• <${c.url}|${msg}> (${c.date?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Done tasks\n  if (r.doneTasks?.length) {\n    message += `\\n*✅ Done Tasks:*\\n`;\n    r.doneTasks.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  // Bug tasks\n  if (r.bugs?.length) {\n    message += `\\n*🐞 Bugs:*\\n`;\n    r.bugs.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  message += `\\n──────────────────────────────\\n`;\n}\n\n// Output for Slack\nreturn [{ json: { text: message } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        736,
-        304
+        960,
+        240
       ],
-      "id": "2f90858d-b939-46e3-8516-86b66472d3e7",
+      "id": "65f12c53-ac02-43b6-adbd-78b480a9f4d8",
       "name": "Message Creation"
     },
     {
@@ -625,9 +625,9 @@
         "select": "channel",
         "channelId": {
           "__rl": true,
-          "value": "C08PEUFAY49",
+          "value": "C09RYPXNXL3",
           "mode": "list",
-          "cachedResultName": "daily_status"
+          "cachedResultName": "daily_progress"
         },
         "text": "={{ $json.text }}",
         "otherOptions": {}
@@ -635,15 +635,15 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        944,
-        304
+        1168,
+        240
       ],
-      "id": "3f386fc7-cdcf-4c3b-b77f-4ee8a4f92773",
+      "id": "8c0c0161-7ad6-4b46-801e-11dd2753cc02",
       "name": "Send a message",
       "webhookId": "b05869d9-de3e-449e-9180-7979fc25d9b0",
       "credentials": {
         "slackApi": {
-          "id": "00tZfPmGstfzw8u4",
+          "id": "1PPlFAPnbiUMnQUF",
           "name": "Slack account"
         }
       }
@@ -982,6 +982,6 @@
   "pinData": {},
   "meta": {
     "templateCredsSetupCompleted": true,
-    "instanceId": "c2b636201969d0e9ac96456ec18596ab2eef5138837d69d65cf3762e36b2d154"
+    "instanceId": "3fc43a92c22862417f4719776cb757b2a58a8e17f1807df8cfc5950d6ed3e367"
   }
 }
