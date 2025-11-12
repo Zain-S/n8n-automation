@@ -14,7 +14,7 @@
       "typeVersion": 1.2,
       "position": [
         -2144,
-        144
+        336
       ],
       "id": "c10287af-7c2e-4566-b536-c7e38893c06b",
       "name": "Daily Report"
@@ -33,7 +33,7 @@
       "typeVersion": 1.2,
       "position": [
         -2144,
-        528
+        720
       ],
       "id": "f5d773d6-8938-441a-aba9-3dd0a119d24b",
       "name": "Monthly Report"
@@ -56,7 +56,7 @@
       "typeVersion": 1.2,
       "position": [
         -2144,
-        336
+        528
       ],
       "id": "9841dce2-9329-447f-8555-9c1e111c8a5c",
       "name": "Weekly Report"
@@ -84,7 +84,7 @@
       "typeVersion": 4.7,
       "position": [
         -1024,
-        432
+        528
       ],
       "id": "de47dd01-6dcc-46ac-8972-2bf7ef313a26",
       "name": "Get Users",
@@ -114,7 +114,7 @@
       "typeVersion": 3.4,
       "position": [
         -1248,
-        432
+        528
       ],
       "id": "acf1f15a-a9d7-4399-a5d2-9507b9b33966",
       "name": "Set Base Configuration",
@@ -142,7 +142,7 @@
       "typeVersion": 4.7,
       "position": [
         -1472,
-        432
+        528
       ],
       "id": "4f291be3-ea83-48be-b3df-eb3baa6775a3",
       "name": "Get Base Configuration",
@@ -307,7 +307,7 @@
       "parameters": {
         "mode": "combine",
         "combineBy": "combineByPosition",
-        "numberInputs": 5,
+        "numberInputs": 6,
         "options": {
           "includeUnpaired": true
         }
@@ -316,24 +316,24 @@
       "typeVersion": 3.2,
       "position": [
         320,
-        192
+        272
       ],
       "id": "4a4b6e8f-ec50-45c9-ab9a-2a497343b514",
       "name": "Merge"
     },
     {
       "parameters": {
-        "jsCode": "// --- Helper: Distinct function based on issue key ---\nfunction distinctTasks(tasks = []) {\n  return tasks.filter((task, index, self) =>\n    self.findIndex(t => t.key === task.key) === index\n  );\n}\n\n// --- Input data from previous nodes ---\nconst pr_report = $input.first().json.pr_report;\nconst commit_report = $input.first().json.commit_report;\nconst line_changes_report = $input.first().json.line_changes_report;\nconst done_tasks_report = $input.first().json.done_tasks_report;\nconst bugs_report = $input.first().json.bugs_report;\n\n// --- Data structures ---\n/** @type {{ [key: string]: any }} */\nlet githubReport = {};  // key = user.login\n/** @type {{ [key: string]: any }} */\nlet jiraReport = {};    // key = assignee.accountId\n\n// --- Process PR report ---\nfor (const item of pr_report) {\n  const userLogin = item.user?.login;\n  if (!userLogin) continue;\n\n  if (!githubReport[userLogin]) {\n    githubReport[userLogin] = {\n      user: item.user,\n      prs: item.prs,\n      commits: [],\n      stats: { additions: 0, deletions: 0, total: 0 },\n    };\n  } else {\n    githubReport[userLogin].prs = item.prs\n  }\n}\n\n// --- Process commit report ---\nfor (const item of commit_report) {\n  const userLogin = item.user?.login;\n  if (!userLogin) continue;\n\n  if (!githubReport[userLogin]) {\n    githubReport[userLogin] = {\n      user: item.user,\n      prs: [],\n      commits: item.commits,\n      stats: { additions: 0, deletions: 0, total: 0 },\n    };\n  } else {\n    githubReport[userLogin].commits = item.commits\n  }\n}\n\n// --- Process line changes ---\nfor (const item of line_changes_report) {\n  const userLogin = item.user?.login;\n  if (!userLogin) continue;\n\n  if (!githubReport[userLogin]) {\n    githubReport[userLogin] = {\n      user: item.user,\n      prs: [],\n      commits: [],\n      stats: { ...item.stats },\n    };\n  } else {\n    const stats = githubReport[userLogin].stats;\n    stats.additions += item.stats.additions;\n    stats.deletions += item.stats.deletions;\n    stats.total += item.stats.total;\n  }\n}\n\n// --- Process Jira done tasks ---\nfor (const item of done_tasks_report) {\n  const assignee = item.assignee;\n  if (!assignee || !assignee.accountId) continue;\n\n  const id = assignee.accountId;\n  if (!jiraReport[id]) {\n    jiraReport[id] = {\n      user: assignee,\n      bugs: 0,\n      doneTasks: item.tasks,\n    };\n  } else {\n    jiraReport[id].doneTasks.push(...item.tasks);\n  }\n}\n\n// --- Process Jira bugs ---\nfor (const item of bugs_report) {\n  const assignee = item.assignee;\n  if (!assignee || !assignee.accountId) continue;\n\n  const id = assignee.accountId;\n  if (!jiraReport[id]) {\n    jiraReport[id] = {\n      user: assignee,\n      doneTasks: [],\n      bugTasks: item.tasks,\n    };\n  } else {\n    if (!jiraReport[id].bugTasks) jiraReport[id].bugTasks = [];\n    jiraReport[id].bugTasks.push(...item.tasks);\n  }\n}\n\n// --- Combine GitHub report ---\nconst githubReportJsonArray = Object.values(githubReport).map(item => ({\n  user: item.user,\n  prs_count: item.prs.length,\n  prs: item.prs.map(pr => ({\n    title: pr.title,\n    url: pr.html_url,\n    created_at: pr.created_at,\n    merged_at: pr.merged_at,\n  })),\n  commits_count: item.commits.length,\n  commits: item.commits.map(commit => ({\n    message: commit.commit?.message || 'No message',\n    url: commit.html_url,\n    date: commit.commit?.author?.date || commit.commit?.committer?.date,\n  })),\n  stats: item.stats\n}));\n\n// --- Combine Jira report ---\nconst jiraReportJsonArray = Object.values(jiraReport).map(item => ({\n  user: item.user,\n  doneTasks: distinctTasks(item.doneTasks)?.map(t => ({\n    key: t.key,\n    summary: t.fields?.summary,\n    status: t.fields?.status?.name,\n    link: `https://techvention-new.atlassian.net/browse/${t.key}`\n  })) || [],\n  bugTasks: distinctTasks(item.bugTasks)?.map(t => ({\n    key: t.key,\n    summary: t.fields?.summary,\n    status: t.fields?.status?.name,\n    link: `https://techvention-new.atlassian.net/browse/${t.key}`\n  })) || [],\n}));\n\n// --- Return for n8n ---\nreturn [\n  {\n    json: {\n      githubReport: githubReportJsonArray,\n      jiraReport: jiraReportJsonArray,\n    },\n  },\n];\n"
+        "jsCode": "// --- Helper: Distinct function based on issue key ---\nfunction distinctTasks(tasks = []) {\n  return tasks.filter((task, index, self) =>\n    self.findIndex(t => t.key === task.key) === index\n  );\n}\n\n// --- Input data from previous nodes ---\nconst pr_report = $input.first().json.pr_report;\nconst commit_report = $input.first().json.commit_report;\nconst line_changes_report = $input.first().json.line_changes_report;\nconst done_tasks_report = $input.first().json.done_tasks_report;\nconst bugs_report = $input.first().json.bugs_report;\nconst jira_report = $input.first().json.jira_report;\n\n// --- Data structures ---\n/** @type {{ [key: string]: any }} */\nlet githubReport = {};  // key = user.login\n/** @type {{ [key: string]: any }} */\nlet jiraReport = {};    // key = assignee.accountId\n\n// --- Process PR report ---\nfor (const item of pr_report) {\n  const userLogin = item.user?.login;\n  if (!userLogin) continue;\n\n  if (!githubReport[userLogin]) {\n    githubReport[userLogin] = {\n      user: item.user,\n      prs: item.prs,\n      commits: [],\n      stats: { additions: 0, deletions: 0, total: 0 },\n    };\n  } else {\n    githubReport[userLogin].prs = item.prs\n  }\n}\n\n// --- Process commit report ---\nfor (const item of commit_report) {\n  const userLogin = item.user?.login;\n  if (!userLogin) continue;\n\n  if (!githubReport[userLogin]) {\n    githubReport[userLogin] = {\n      user: item.user,\n      prs: [],\n      commits: item.commits,\n      stats: { additions: 0, deletions: 0, total: 0 },\n    };\n  } else {\n    githubReport[userLogin].commits = item.commits\n  }\n}\n\n// --- Process line changes ---\nfor (const item of line_changes_report) {\n  const userLogin = item.user?.login;\n  if (!userLogin) continue;\n\n  if (!githubReport[userLogin]) {\n    githubReport[userLogin] = {\n      user: item.user,\n      prs: [],\n      commits: [],\n      stats: { ...item.stats },\n    };\n  } else {\n    const stats = githubReport[userLogin].stats;\n    stats.additions += item.stats.additions;\n    stats.deletions += item.stats.deletions;\n    stats.total += item.stats.total;\n    githubReport[userLogin].stats = stats;\n  }\n}\n\n// --- Process Jira done tasks ---\nfor (const item of done_tasks_report) {\n  const assignee = item.assignee;\n  if (!assignee || !assignee.accountId) continue;\n\n  const id = assignee.accountId;\n  if (!jiraReport[id]) {\n    jiraReport[id] = {\n      user: assignee,\n      doneTasks: item.tasks,\n      bugTasks: [],\n      stausCounts: []\n    };\n  } else {\n    jiraReport[id].doneTasks.push(...item.tasks);\n  }\n}\n\n// --- Process Jira bugs ---\nfor (const item of bugs_report) {\n  const assignee = item.assignee;\n  if (!assignee || !assignee.accountId) continue;\n\n  const id = assignee.accountId;\n  if (!jiraReport[id]) {\n    jiraReport[id] = {\n      user: assignee,\n      doneTasks: [],\n      bugTasks: item.tasks,\n      stausCounts: []\n    };\n  } else {\n    if (!jiraReport[id].bugTasks) jiraReport[id].bugTasks = [];\n    jiraReport[id].bugTasks.push(...item.tasks);\n  }\n}\n\n// --- Process Jira Statused ---\nconsole.log(jira_report);\nfor (const item of jira_report) {\n  const assignee = item.assignee;\n  if (!assignee || !assignee.accountId) continue;\n\n  const id = assignee.accountId;\n  if (!jiraReport[id]) {\n    jiraReport[id] = {\n      user: assignee,\n      doneTasks: [],\n      bugTasks: [],\n      statusCounts: item.statusCounts\n    };\n  } else {\n    jiraReport[id].statusCounts = item.statusCounts;\n  }\n}\n\n// --- Combine GitHub report ---\nconst githubReportJsonArray = Object.values(githubReport).map(item => ({\n  user: item.user,\n  prs_count: item.prs.length,\n  prs: item.prs.map(pr => ({\n    title: pr.title,\n    url: pr.html_url,\n    created_at: pr.created_at,\n    merged_at: pr.merged_at,\n  })),\n  commits_count: item.commits.length,\n  commits: item.commits.map(commit => ({\n    message: commit.commit?.message || 'No message',\n    url: commit.html_url,\n    date: commit.commit?.author?.date || commit.commit?.committer?.date,\n  })),\n  stats: item.stats\n}));\n\n// --- Combine Jira report ---\nconst jiraReportJsonArray = Object.values(jiraReport).map(item => ({\n  user: item.user,\n  doneTasks: distinctTasks(item.doneTasks)?.map(t => ({\n    key: t.key,\n    summary: t.fields?.summary,\n    status: t.fields?.status?.name,\n    link: `https://techvention-new.atlassian.net/browse/${t.key}`\n  })) || [],\n  bugTasks: distinctTasks(item.bugTasks)?.map(t => ({\n    key: t.key,\n    summary: t.fields?.summary,\n    status: t.fields?.status?.name,\n    link: `https://techvention-new.atlassian.net/browse/${t.key}`\n  })) || [],\n  statusCounts: item.statusCounts\n}));\n\n// --- Return for n8n ---\nreturn [\n  {\n    json: {\n      githubReport: githubReportJsonArray,\n      jiraReport: jiraReportJsonArray,\n    },\n  },\n];\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
         544,
-        240
+        336
       ],
       "id": "0d86a5dc-5404-444f-9e03-e22448dbb42b",
       "name": "Final Report",
-      "executeOnce": false
+      "executeOnce": true
     },
     {
       "parameters": {
@@ -380,7 +380,7 @@
       "typeVersion": 3.4,
       "position": [
         -1920,
-        144
+        336
       ],
       "id": "ec121991-e5a9-43b0-b667-8c69952bcfcb",
       "name": "Set Daily Type"
@@ -403,7 +403,7 @@
       "typeVersion": 3.4,
       "position": [
         -1920,
-        528
+        720
       ],
       "id": "e9c4d1eb-bdc0-40aa-949b-5354ca8df136",
       "name": "Set Monthly Type"
@@ -426,7 +426,7 @@
       "typeVersion": 3.4,
       "position": [
         -1920,
-        336
+        528
       ],
       "id": "e0fa5ba8-3926-4c51-aa32-f1df2b2ca7f2",
       "name": "Set Weekly Type"
@@ -439,7 +439,7 @@
       "typeVersion": 2,
       "position": [
         -1696,
-        432
+        528
       ],
       "id": "e1afb694-bba1-49d4-9f19-e748ae5b4b1b",
       "name": "Set Days"
@@ -596,26 +596,26 @@
     },
     {
       "parameters": {
-        "jsCode": "// === Input data ===\nconst mapping = $(\"Get Users\").all(); // from Google Sheets node\nconst githubReport = $input.first().json.githubReport; // GitHub report array\nconst jiraReport = $input.first().json.jiraReport; // Jira report array\n\n// === Helper: Find user safely ===\nfunction findGithub(username) {\n  return githubReport.find(u => u.user?.login?.toLowerCase() === username.toLowerCase());\n}\n\nfunction findJira(accountId) {\n  return jiraReport.find(u =>\n    u.user?.accountId === accountId\n  );\n}\n\n// === Final merged report ===\nconst finalReport = mapping.map(user => {\n  const gh = findGithub(user.json.Github_UserName);\n  const jr = findJira(user.json.Jira_User_Id);\n\n  return {\n    Name: user.json.Name,\n    Github_UserName: user.json.Github_UserName,\n    Jira_User_Id: user.json.Jira_User_Id,\n    Slack_User_id: user.json.Slack_User_id || \"\",\n    prs: gh?.prs || 0,\n    commits: gh?.commits || 0,\n    additions: gh?.stats?.additions || 0,\n    deletions: gh?.stats?.deletions || 0,\n    total: gh?.stats?.total || 0,\n    doneTasks: jr?.doneTasks || 0,\n    bugs: jr?.bugTasks || 0\n  };\n});\n\n// === Return for next node ===\nreturn finalReport.map(r => ({ json: r }));\n"
+        "jsCode": "// === Input data ===\nconst mapping = $(\"Get Users\").all(); // from Google Sheets node\nconst githubReport = $input.first().json.githubReport; // GitHub report array\nconst jiraReport = $input.first().json.jiraReport; // Jira report array\n\n// === Helper: Find user safely ===\nfunction findGithub(username) {\n  return githubReport.find(u => u.user?.login?.toLowerCase() === username.toLowerCase());\n}\n\nfunction findJira(accountId) {\n  return jiraReport.find(u =>\n    u.user?.accountId === accountId\n  );\n}\n\n// === Final merged report ===\nconst finalReport = mapping.map(user => {\n  const gh = findGithub(user.json.Github_UserName);\n  const jr = findJira(user.json.Jira_User_Id);\n\n  return {\n    Name: user.json.Name,\n    Github_UserName: user.json.Github_UserName,\n    Jira_User_Id: user.json.Jira_User_Id,\n    Slack_User_id: user.json.Slack_User_id || \"\",\n    prs: gh?.prs || 0,\n    commits: gh?.commits || 0,\n    additions: gh?.stats?.additions || 0,\n    deletions: gh?.stats?.deletions || 0,\n    total: gh?.stats?.total || 0,\n    doneTasks: jr?.doneTasks || 0,\n    bugs: jr?.bugTasks || 0,\n    statusCounts: Object.entries(jr.statusCounts)\n  .map(([key, value]) => `${key}: ${value}`)\n  .join(\", \")\n  };\n});\n\n// === Return for next node ===\nreturn finalReport.map(r => ({ json: r }));\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        752,
-        240
+        768,
+        336
       ],
       "id": "65b0eabf-132b-4566-b5e8-07cfd528fa78",
       "name": "Mapping"
     },
     {
       "parameters": {
-        "jsCode": "const triggerdays = $(\"Set Days\").last().json.days;\nconst report = $input.all().flatMap(i => i.json); // ensure flattened array\n\n// Determine report type based on days\nlet reportType = \"\";\nif (triggerdays == 1) reportType = \"Daily\";\nelse if (triggerdays == 7) reportType = \"Weekly\";\nelse if (triggerdays == 30) reportType = \"Monthly\";\nelse reportType = `${triggerdays}-Day`;\n\n// Start building message\nlet message = `*🧠 Techvention ${reportType} Developer Performance Report*\\n`;\nmessage += `Hey <@U033AAC2DQD> and <@U04BAQRBSGZ>, here is your ${reportType.toLowerCase()} report!\\n\\n`;\n\nfor (const r of report) {\n  // Basic info\n  message += `*👨‍💻 ${r.Name}*  (_${r.Github_UserName}_) <@${r.Slack_User_id}>\\n`;\n  message += `• *PRs:* ${Array.isArray(r.prs) ? r.prs.length : 0}\\n`;\n  message += `• *Commits:* ${Array.isArray(r.commits) ? r.commits.length : 0}\\n`;\n  message += `• *Code Stats:* +${r.additions} / -${r.deletions} (total ${r.total})\\n`;\n  message += `• *Done Tasks:* ${Array.isArray(r.doneTasks) ? r.doneTasks.length : 0}\\n`;\n  message += `• *Bugs:* ${Array.isArray(r.bugs) ? r.bugs.length : 0}\\n`;\n\n  // PR details\n  if (r.prs?.length) {\n    message += `\\n*🧩 Pull Requests:*\\n`;\n    r.prs.forEach(pr => {\n      message += `• <${pr.url}|${pr.title}> (${pr.created_at?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Commit details\n  if (r.commits?.length) {\n    message += `\\n*💾 Commits:*\\n`;\n    r.commits.forEach(c => {\n      const msg = c.message.length > 50 ? c.message.slice(0, 50) + \"…\" : c.message;\n      message += `• <${c.url}|${msg}> (${c.date?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Done tasks\n  if (r.doneTasks?.length) {\n    message += `\\n*✅ Done Tasks:*\\n`;\n    r.doneTasks.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  // Bug tasks\n  if (r.bugs?.length) {\n    message += `\\n*🐞 Bugs:*\\n`;\n    r.bugs.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  message += `\\n──────────────────────────────\\n`;\n}\n\n// Output for Slack\nreturn [{ json: { text: message } }];"
+        "jsCode": "const triggerdays = $(\"Set Days\").last().json.days;\nconst report = $input.all().flatMap(i => i.json); // ensure flattened array\n\n// Determine report type based on days\nlet reportType = \"\";\nif (triggerdays == 1) reportType = \"Daily\";\nelse if (triggerdays == 7) reportType = \"Weekly\";\nelse if (triggerdays == 30) reportType = \"Monthly\";\nelse reportType = `${triggerdays}-Day`;\n\n// Start building message\nlet message = `*🧠 Techvention ${reportType} Developer Performance Report*\\n`;\nmessage += `Hey <@U033AAC2DQD> and <@U04BAQRBSGZ>, here is your ${reportType.toLowerCase()} report!\\n\\n`;\n\nfor (const r of report) {\n  // Basic info\n  message += `*👨‍💻 ${r.Name}*  (_${r.Github_UserName}_) <@${r.Slack_User_id}>\\n`;\n  message += `• *🧩 PRs:* ${Array.isArray(r.prs) ? r.prs.length : 0}\\n`;\n  message += `• *💾 Commits:* ${Array.isArray(r.commits) ? r.commits.length : 0}\\n`;\n  message += `• *💻 Code Stats:* +${r.additions} / -${r.deletions} (total ${r.total})\\n`;\n  message += `• *📊 Jira Status:* ${r.statusCounts}\\n`;\n  message += `• *✅ Done Tasks:* ${Array.isArray(r.doneTasks) ? r.doneTasks.length : 0}\\n`;\n  message += `• *🐞 Bugs:* ${Array.isArray(r.bugs) ? r.bugs.length : 0}\\n`;\n\n  // PR details\n  if (r.prs?.length) {\n    message += `\\n*🧩 Pull Requests:*\\n`;\n    r.prs.forEach(pr => {\n      message += `• <${pr.url}|${pr.title}> (${pr.created_at?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Commit details\n  if (r.commits?.length) {\n    message += `\\n*💾 Commits:*\\n`;\n    r.commits.forEach(c => {\n      const msg = c.message.length > 50 ? c.message.slice(0, 50) + \"…\" : c.message;\n      message += `• <${c.url}|${msg}> (${c.date?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Done tasks\n  if (r.doneTasks?.length) {\n    message += `\\n*✅ Done Tasks:*\\n`;\n    r.doneTasks.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  // Bug tasks\n  if (r.bugs?.length) {\n    message += `\\n*🐞 Bugs:*\\n`;\n    r.bugs.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  message += `\\n──────────────────────────────\\n`;\n}\n\n// Output for Slack\nreturn [{ json: { text: message } }];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        960,
-        240
+        992,
+        336
       ],
       "id": "65f12c53-ac02-43b6-adbd-78b480a9f4d8",
       "name": "Message Creation"
@@ -635,8 +635,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1184,
-        80
+        1216,
+        240
       ],
       "id": "8c0c0161-7ad6-4b46-801e-11dd2753cc02",
       "name": "Send message in channel",
@@ -653,9 +653,9 @@
         "select": "user",
         "user": {
           "__rl": true,
-          "value": "U07UN5Y6FNF",
+          "value": "U033AAC2DQD",
           "mode": "list",
-          "cachedResultName": "zain.saeed"
+          "cachedResultName": "afraz.pucit"
         },
         "text": "={{ $json.text }}",
         "otherOptions": {}
@@ -663,8 +663,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1184,
-        336
+        1216,
+        432
       ],
       "id": "1a7bb08e-41e1-488c-8098-2c81dc2e6730",
       "name": "Send personal message",
@@ -676,6 +676,72 @@
         }
       },
       "disabled": true
+    },
+    {
+      "parameters": {
+        "url": "https://techvention-new.atlassian.net/rest/api/3/search/jql",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "jql",
+              "value": "=assignee = {{ $json.Jira_User_Id }}"
+            },
+            {
+              "name": "fields",
+              "value": "assignee, summary, status"
+            },
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -352,
+        816
+      ],
+      "id": "59668d2a-90b3-4543-9461-c4734f496219",
+      "name": "Get Stats",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "rc52vTNzhFT3n15c",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "issues",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        816
+      ],
+      "id": "2fbc8d43-4494-48f3-813b-e86a6be1c475",
+      "name": "Split Out1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// --- Helper: Distinct function based on issue key ---\nfunction distinctTasks(tasks) {\n  return tasks.filter((task, index, self) =>\n    self.findIndex(t => t.key === task.key) === index\n  );\n}\n\nconst issues = $input.all(); // All issues from the previous HTTP request node\n\n// Create an object to store the grouped issues by assignee\n/** @type {{ [key: string]: { assignee: {}, tasks: [{}], statusCounts: {} } }} */\nlet groupedByAssignee = {};\n\n// Create a set to store all unique status names\nlet allStatusNames = new Set();\n\n// Loop through each issue to group by assignee and collect all status names\nissues.forEach(issue => {\n  // Check if assignee exists and is not null\n  if (issue.json.fields.assignee != null) {\n    const assignee = issue.json.fields.assignee;  // Store the whole assignee object\n    const task = issue.json;\n\n    // Add the status name to the allStatusNames set\n    const statusName = task.fields.status.name;\n    allStatusNames.add(statusName);\n\n    // If the assignee is already in the object, add the task to their list\n    if (groupedByAssignee[assignee.accountId]) {\n      groupedByAssignee[assignee.accountId].tasks.push(task);\n    } else {\n      // Initialize a new entry for the assignee if not present\n      groupedByAssignee[assignee.accountId] = {\n        assignee: assignee,  // Store the complete assignee object\n        tasks: [task]        // Start with the current task\n      };\n    }\n  } else {\n    console.log(`No Assignee for Issue: ${issue.json.key}`);\n  }\n});\n\n// Convert the grouped object into an array of assignee and tasks\nconst result = Object.keys(groupedByAssignee).map(assigneeId => ({\n  assignee: groupedByAssignee[assigneeId].assignee,  // Include the full assignee object\n  tasks: distinctTasks(groupedByAssignee[assigneeId].tasks), // Include the list of tasks\n  statusCounts: {}\n}));\n\n// Loop through each item (assignee) to process the status counts\nresult.forEach(item => {\n  // Create a temporary object to store status counts for the current item\n  /** @type { Record<string, number> } */\n  let itemStatusCount = {};\n\n  // Initialize status counts for all unique status names (set initial count to 0)\n  allStatusNames.forEach(statusName => {\n    itemStatusCount[statusName] = 0;\n  });\n\n  // Loop through issues to track status counts\n  for (const issue of item.tasks) {\n    const statusName = issue.fields.status.name;\n\n    // Increment the count for the current status\n    itemStatusCount[statusName]++;\n  }\n\n  // Add the status counts to the item JSON\n  item.statusCounts = itemStatusCount;\n})\n\n// Return the result with the grouped assignee and their tasks in the expected format\nreturn { json: { jira_report: result } };\n"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        96,
+        816
+      ],
+      "id": "ae272697-19d9-478d-82de-e70c18ddd1e4",
+      "name": "Stats"
     }
   ],
   "connections": {
@@ -721,12 +787,17 @@
             "index": 0
           },
           {
+            "node": "Get Organizations",
+            "type": "main",
+            "index": 0
+          },
+          {
             "node": "Get Bugs (Days)",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Get Organizations",
+            "node": "Get Stats",
             "type": "main",
             "index": 0
           }
@@ -1008,6 +1079,39 @@
             "node": "Send personal message",
             "type": "main",
             "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Stats": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out1": {
+      "main": [
+        [
+          {
+            "node": "Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stats": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 5
           }
         ]
       ]
