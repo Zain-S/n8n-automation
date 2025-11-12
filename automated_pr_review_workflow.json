@@ -199,6 +199,24 @@
               "name": "repo_name",
               "value": "={{ $json.body.repository.name }}",
               "type": "string"
+            },
+            {
+              "id": "a0f56cda-4d51-4e2a-b1f4-fa1ddf7d63fc",
+              "name": "pr_title",
+              "value": "={{ $json.body.pull_request.title }}",
+              "type": "string"
+            },
+            {
+              "id": "d12158ae-75a9-4040-81b7-300f866dc4a8",
+              "name": "pr_description",
+              "value": "={{ $json.body.pull_request.body }}",
+              "type": "string"
+            },
+            {
+              "id": "bdee895c-461e-4c84-b387-258cab8312d8",
+              "name": "pr_link",
+              "value": "={{ $json.body.pull_request.url }}",
+              "type": "string"
             }
           ]
         },
@@ -594,6 +612,82 @@
           "name": "GitHub account"
         }
       }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09T8H01V1N",
+          "mode": "list",
+          "cachedResultName": "pr-reviews"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2128,
+        1136
+      ],
+      "id": "bf6bb07d-d0ad-4af0-ae6a-eb7a24ca44df",
+      "name": "Send a message",
+      "webhookId": "79596c6f-10c6-4452-af07-37637493b99e",
+      "credentials": {
+        "slackApi": {
+          "id": "1PPlFAPnbiUMnQUF",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1w3TVkThygaBNRIAdK1xITN_j-8jqpd2vuTjQlRk9QFk",
+          "mode": "list",
+          "cachedResultName": "Employee List",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1w3TVkThygaBNRIAdK1xITN_j-8jqpd2vuTjQlRk9QFk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1w3TVkThygaBNRIAdK1xITN_j-8jqpd2vuTjQlRk9QFk/edit#gid=0"
+        },
+        "combineFilters": "OR",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1680,
+        1136
+      ],
+      "id": "54e23999-f017-41f8-8edb-153c6139d367",
+      "name": "Get Users",
+      "executeOnce": true,
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "hMrWlRlZgnDfaGnB",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// === Input data ===\nconst users = $(\"Get Users\").all(); // from Google Sheets node\n\n// === Helper: Find user safely ===\nfunction findGithub(username) {\n  return users.find(u => u.json.Github_UserName?.toLowerCase() === username.toLowerCase());\n}\n\n// Get the user info from GitHub username, assuming you have Slack user ID available as well\nconst submitted_user = findGithub($('Add Label to PR').first().json.user.login);\nconst slack_user_id = submitted_user?.json?.Slack_User_id || '';  // Assuming Slack User ID is available in the data\n\nconst ai_review = $('Code Review Agent').first().json.output;\nconst pr_title = $('Repo Setting').first().json.pr_title;\nconst pr_description = $('Repo Setting').first().json.pr_description || \"\";\nconst pr_link = $('Repo Setting').first().json.pr_link;\n\n// === Final merged report ===\nconst finalReport = {\n  text: `*🚀 New PR Submitted - Reviewed by AI*\\n🔹 *Submitted by*: <@${slack_user_id}> \\n *📜 PR Title*: *<${pr_link}|${pr_title}>*\\n *📝 PR Description*: ${pr_description || 'No description provided'}\\n\\n *🤖 AI Review*:\\n${ai_review}\\n *🔗 PR Link*: *<${pr_link}|View PR on GitHub>*`\n}\n\nreturn finalReport;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1904,
+        1136
+      ],
+      "id": "f3b73210-ef66-4bff-abb7-30634c977b34",
+      "name": "Format Data for Slack"
     }
   ],
   "connections": {
@@ -635,6 +729,17 @@
         [
           {
             "node": "Add Label to PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Label to PR": {
+      "main": [
+        [
+          {
+            "node": "Get Users",
             "type": "main",
             "index": 0
           }
@@ -789,6 +894,28 @@
         [
           {
             "node": "Repo Setting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Users": {
+      "main": [
+        [
+          {
+            "node": "Format Data for Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Data for Slack": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
             "type": "main",
             "index": 0
           }
