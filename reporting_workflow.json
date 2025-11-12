@@ -526,7 +526,7 @@
           "parameters": [
             {
               "name": "jql",
-              "value": "=status=\"Done\" OR status changed TO \"Done\" DURING (-{{$('Set Days').item.json.days}}d, now())"
+              "value": "=status changed TO \"Done\" DURING (-{{$('Set Days').item.json.days}}d, now())"
             },
             {
               "name": "fields",
@@ -635,11 +635,11 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1168,
-        240
+        1184,
+        80
       ],
       "id": "8c0c0161-7ad6-4b46-801e-11dd2753cc02",
-      "name": "Send a message",
+      "name": "Send message in channel",
       "webhookId": "b05869d9-de3e-449e-9180-7979fc25d9b0",
       "credentials": {
         "slackApi": {
@@ -647,6 +647,35 @@
           "name": "Slack account"
         }
       }
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "U07UN5Y6FNF",
+          "mode": "list",
+          "cachedResultName": "zain.saeed"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1184,
+        336
+      ],
+      "id": "1a7bb08e-41e1-488c-8098-2c81dc2e6730",
+      "name": "Send personal message",
+      "webhookId": "b05869d9-de3e-449e-9180-7979fc25d9b0",
+      "credentials": {
+        "slackApi": {
+          "id": "1PPlFAPnbiUMnQUF",
+          "name": "Slack account"
+        }
+      },
+      "disabled": true
     }
   ],
   "connections": {
@@ -971,7 +1000,12 @@
       "main": [
         [
           {
-            "node": "Send a message",
+            "node": "Send message in channel",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send personal message",
             "type": "main",
             "index": 0
           }
