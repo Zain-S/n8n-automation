@@ -13,8 +13,8 @@
       "name": "OpenAI Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "position": [
-        960,
-        1360
+        1856,
+        1424
       ],
       "typeVersion": 1.2,
       "credentials": {
@@ -26,7 +26,7 @@
     },
     {
       "parameters": {
-        "url": "=https://api.github.com/repos/{{ $json.repo_owner }}/{{$('Doctor Mobile App').item.json.body.repository.name}}/pulls/{{$('Doctor Mobile App').item.json.body.number}}/files",
+        "url": "=https://api.github.com/repos/{{ $('Repo Setting').first().json.repo_owner }}/{{ $('Repo Setting').first().json.repo_name }}/pulls/{{ $('Repo Setting').first().json.pr_number }}/files",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "githubApi",
         "options": {}
@@ -35,8 +35,8 @@
       "name": "Get file's Diffs from PR",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        432,
-        1136
+        1328,
+        1200
       ],
       "typeVersion": 4.2,
       "credentials": {
@@ -54,8 +54,8 @@
       "name": "Create target Prompt from PR Diffs",
       "type": "n8n-nodes-base.code",
       "position": [
-        656,
-        1136
+        1552,
+        1200
       ],
       "typeVersion": 2
     },
@@ -64,12 +64,12 @@
         "resource": "review",
         "owner": {
           "__rl": true,
-          "value": "={{ $('Repo Setting').item.json.repo_owner }}",
+          "value": "={{ $('Repo Setting').first().json.repo_owner }}",
           "mode": "name"
         },
         "repository": {
           "__rl": true,
-          "value": "={{ $('Repo Setting').item.json.repo_name }}",
+          "value": "={{ $('Repo Setting').first().json.repo_name }}",
           "mode": "name"
         },
         "pullRequestNumber": "={{ $('Doctor Mobile App').first().json.body.number }}",
@@ -81,8 +81,8 @@
       "name": "GitHub Robot",
       "type": "n8n-nodes-base.github",
       "position": [
-        1232,
-        1136
+        2128,
+        1200
       ],
       "webhookId": "39c2fe8b-f686-4699-8450-2a5b4c263d93",
       "typeVersion": 1.1,
@@ -98,12 +98,12 @@
         "operation": "edit",
         "owner": {
           "__rl": true,
-          "value": "={{ $('Repo Setting').item.json.repo_owner }}",
+          "value": "={{ $('Repo Setting').first().json.repo_owner }}",
           "mode": "name"
         },
         "repository": {
           "__rl": true,
-          "value": "={{ $('Repo Setting').item.json.repo_name }}",
+          "value": "={{ $('Repo Setting').first().json.repo_name }}",
           "mode": "name"
         },
         "issueNumber": "={{ $('Doctor Mobile App').first().json.body.number }}",
@@ -119,8 +119,8 @@
       "name": "Add Label to PR",
       "type": "n8n-nodes-base.github",
       "position": [
-        1456,
-        1136
+        2352,
+        1200
       ],
       "webhookId": "c98f39f1-603b-4013-9149-53b4cc31b611",
       "typeVersion": 1,
@@ -141,8 +141,8 @@
       "name": "Code Review Agent",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "position": [
-        880,
-        1136
+        1776,
+        1200
       ],
       "typeVersion": 1.9
     },
@@ -216,6 +216,30 @@
               "id": "bdee895c-461e-4c84-b387-258cab8312d8",
               "name": "pr_link",
               "value": "={{ $json.body.pull_request.url }}",
+              "type": "string"
+            },
+            {
+              "id": "a48f582e-6324-4058-a2ef-37996b49d512",
+              "name": "is_merged",
+              "value": "={{ $json.body.pull_request.merged }}",
+              "type": "string"
+            },
+            {
+              "id": "e76cd041-acc0-423f-9411-73c9e84da0de",
+              "name": "state",
+              "value": "={{ $json.body.pull_request.state }}",
+              "type": "string"
+            },
+            {
+              "id": "ace3f1f9-5491-4ea4-8b63-b80642d6649b",
+              "name": "user_login",
+              "value": "={{ $json.body.pull_request.user.login }}",
+              "type": "string"
+            },
+            {
+              "id": "e43c5e7d-b79e-437a-bab0-44a98e32642e",
+              "name": "pr_number",
+              "value": "={{ $json.body.number }}",
               "type": "string"
             }
           ]
@@ -615,12 +639,12 @@
     },
     {
       "parameters": {
-        "select": "channel",
-        "channelId": {
+        "select": "user",
+        "user": {
           "__rl": true,
-          "value": "C09T8H01V1N",
+          "value": "U07UN5Y6FNF",
           "mode": "list",
-          "cachedResultName": "pr-reviews"
+          "cachedResultName": "zain.saeed"
         },
         "text": "={{ $json.text }}",
         "otherOptions": {}
@@ -628,8 +652,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        2128,
-        1136
+        2800,
+        1200
       ],
       "id": "bf6bb07d-d0ad-4af0-ae6a-eb7a24ca44df",
       "name": "Send a message",
@@ -640,6 +664,212 @@
           "name": "Slack account"
         }
       }
+    },
+    {
+      "parameters": {
+        "jsCode": "// === Input data ===\nconst users = $(\"Get Users\").all(); // from Google Sheets node\n\n// === Helper: Find user safely ===\nfunction findGithub(username) {\n  return users.find(u => u.json.Github_UserName?.toLowerCase() === username.toLowerCase());\n}\n\n// Get the user info from GitHub username, assuming you have Slack user ID available as well\nconst submitted_user = findGithub($('Add Label to PR').first().json.user.login);\nconst slack_user_id = submitted_user?.json?.Slack_User_id || '';  // Assuming Slack User ID is available in the data\n\nconst ai_review = $('Code Review Agent').first().json.output;\nconst pr_title = $('Repo Setting').first().json.pr_title;\nconst pr_description = $('Repo Setting').first().json.pr_description || \"\";\nconst pr_link = $('Repo Setting').first().json.pr_link;\n\n// === Final merged report ===\nconst finalReport = {\n  text: `*🚀 New PR Submitted - Reviewed by AI*\\n🔹 *Submitted by*: <@${slack_user_id}> \\n *📜 PR Title*: *<${pr_link}|${pr_title}>*\\n *📝 PR Description*: ${pr_description || 'No description provided'}\\n\\n *🤖 AI Review*:\\n${ai_review}\\n *🔗 PR Link*: *<${pr_link}|View PR on GitHub>*`\n}\n\nreturn finalReport;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2576,
+        1200
+      ],
+      "id": "f3b73210-ef66-4bff-abb7-30634c977b34",
+      "name": "Format Data for Slack"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const prTitle = $('Repo Setting').first().json.pr_title;\nconst prLink = $('Repo Setting').first().json.pr_link;\nconst prDescription = $('Repo Setting').first().json.pr_description;\nconst slackUserId = $json.submitted_user.Slack_User_id;\n\n// Updated regex to make the [...] part optional\nconst regex = /^([A-Z]+-\\d+)\\s(.*?)(?:\\s\\[(.*)\\])?$/;\nconst match = prTitle.match(regex);\nlet error;\nif (!match) {\n  error = `*:x: New PR Submitted - Incorrect Format*\\n🔹 *Submitted by*: <@${slackUserId}> \\n *📜 PR Title*: *<${prLink}|${prTitle}>*\\n *📝 PR Description*: ${prDescription || 'No description provided'}\\n\\n *:warning: Error*:Commit message format is incorrect. Missing task key or message. Correct Format is: [PROJECT_KEY-ISSUE_NUMBER] Commit description\\n *🔗 PR Link*: *<${prLink}|View PR on GitHub>*`;\n  return {\n    error\n  };\n}\n\nconst jiraKey = match[1];\nconst commitDescription = match[2].trim();\nconst flagString = match[3];\nconst flags = flagString ? flagString.split(',').map(s => s.trim()) : [];\n\nreturn {\n  json: {\n    jiraKey,\n    commitDescription,\n    commands: flags,\n  }\n};\n"
+      },
+      "id": "b56acc72-d9ed-461d-aef3-1250d2783318",
+      "name": "Commit Message Breakdown",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        880,
+        1136
+      ],
+      "typeVersion": 2,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "// === Input data ===\nconst users = $(\"Get Users\").all(); // from Google Sheets node\n\n// === Helper: Find user safely ===\nfunction findGithub(username) {\n  return users.find(u => u.json.Github_UserName?.toLowerCase() === username.toLowerCase());\n}\n\n// Get the user info from GitHub username, assuming you have Slack user ID available as well\nconst submitted_user = findGithub($('Repo Setting').first().json.user_login).json;\n\nreturn {\n  submitted_user\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        656,
+        1136
+      ],
+      "id": "08c6c416-cb3a-43ec-b91d-3f90326ff284",
+      "name": "Get Current User"
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "U07UN5Y6FNF",
+          "mode": "list",
+          "cachedResultName": "zain.saeed"
+        },
+        "text": "={{ $json.error }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1104,
+        1232
+      ],
+      "id": "8fd296a5-f9d0-4340-89f2-9f26e79565db",
+      "name": "Send incorrect format message",
+      "webhookId": "316d5b14-a78b-4d02-950c-f08facadc09e",
+      "credentials": {
+        "slackApi": {
+          "id": "1PPlFAPnbiUMnQUF",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d5e108c2-b8ea-407e-8d7b-ab7aee6314f9",
+              "leftValue": "={{ $('Repo Setting').first().json.is_merged }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "ff7672e1-1c75-47c0-8a38-41a9a0fb1edb",
+              "leftValue": "={{ $('Repo Setting').first().json.state }}",
+              "rightValue": "closed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1104,
+        1040
+      ],
+      "id": "3f41533e-7885-4407-a2e5-99aab1b52070",
+      "name": "Is Merge?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "issueKey": "={{ $json.key }}",
+        "updateFields": {
+          "statusId": {
+            "__rl": true,
+            "value": "31",
+            "mode": "list",
+            "cachedResultName": "Done"
+          }
+        }
+      },
+      "id": "a9dd62d6-18f1-4fd2-a9a5-d7064c533dff",
+      "name": "Update task status",
+      "type": "n8n-nodes-base.jira",
+      "position": [
+        1552,
+        896
+      ],
+      "typeVersion": 1,
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "rc52vTNzhFT3n15c",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09T8H01V1N",
+          "mode": "list",
+          "cachedResultName": "techvention-pr-reviews"
+        },
+        "text": "={{ $json.message }}",
+        "otherOptions": {}
+      },
+      "id": "044bf33f-4479-496e-91df-35d571b07af8",
+      "name": "Send message in slack with PR",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2128,
+        896
+      ],
+      "webhookId": "{YOUR_SLACK_WEBHOOK_ID}",
+      "typeVersion": 2.3,
+      "credentials": {
+        "slackApi": {
+          "id": "1PPlFAPnbiUMnQUF",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "issueKey": "={{ $json.jiraKey }}",
+        "additionalFields": {
+          "fields": "summary"
+        }
+      },
+      "id": "32664b37-a1bc-4308-a844-e866c82d3378",
+      "name": "Get task details for PR",
+      "type": "n8n-nodes-base.jira",
+      "position": [
+        1328,
+        896
+      ],
+      "typeVersion": 1,
+      "alwaysOutputData": false,
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "rc52vTNzhFT3n15c",
+          "name": "Jira SW Cloud account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const prTitle = $('Repo Setting').first().json.pr_title;\nconst prLink = $('Repo Setting').first().json.pr_link;\nconst prDescription = $('Repo Setting').first().json.pr_description;\nconst slackUserId = $('Get Current User').first().json.submitted_user.Slack_User_id\n\nconst inputUrl = $('Get task details for PR').first().json.self\nconst taskKey = $('Get task details for PR').first().json.key\nconst taskLink = inputUrl.replace(/\\/issue\\/\\d+$/, `/browse/${taskKey}`);\nconst taskSummary = $('Get task details for PR').first().json.fields.summary\n\nlet message = `*:white_check_mark: PR Merged - Task Status Moved to Done *\\n🔹 *Submitted by*: <@${slackUserId}> \\n *📜 Task*: *<${taskLink}|${taskSummary}>*\\n *📜 PR Title*: *<${prLink}|${prTitle}>*\\n *📝 PR Description*: ${prDescription || 'No description provided'}\\n\\n *🔗 PR Link*: *<${prLink}|View PR on GitHub>*`;\nreturn {\n  message\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1840,
+        896
+      ],
+      "id": "bb17dead-b2d6-4181-83bd-9342219b0092",
+      "name": "Updated Status Message"
     },
     {
       "parameters": {
@@ -663,10 +893,10 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        1680,
+        432,
         1136
       ],
-      "id": "54e23999-f017-41f8-8edb-153c6139d367",
+      "id": "e7d80614-0918-4ebd-96d4-371216f8d325",
       "name": "Get Users",
       "executeOnce": true,
       "credentials": {
@@ -675,19 +905,6 @@
           "name": "Google Sheets account"
         }
       }
-    },
-    {
-      "parameters": {
-        "jsCode": "// === Input data ===\nconst users = $(\"Get Users\").all(); // from Google Sheets node\n\n// === Helper: Find user safely ===\nfunction findGithub(username) {\n  return users.find(u => u.json.Github_UserName?.toLowerCase() === username.toLowerCase());\n}\n\n// Get the user info from GitHub username, assuming you have Slack user ID available as well\nconst submitted_user = findGithub($('Add Label to PR').first().json.user.login);\nconst slack_user_id = submitted_user?.json?.Slack_User_id || '';  // Assuming Slack User ID is available in the data\n\nconst ai_review = $('Code Review Agent').first().json.output;\nconst pr_title = $('Repo Setting').first().json.pr_title;\nconst pr_description = $('Repo Setting').first().json.pr_description || \"\";\nconst pr_link = $('Repo Setting').first().json.pr_link;\n\n// === Final merged report ===\nconst finalReport = {\n  text: `*🚀 New PR Submitted - Reviewed by AI*\\n🔹 *Submitted by*: <@${slack_user_id}> \\n *📜 PR Title*: *<${pr_link}|${pr_title}>*\\n *📝 PR Description*: ${pr_description || 'No description provided'}\\n\\n *🤖 AI Review*:\\n${ai_review}\\n *🔗 PR Link*: *<${pr_link}|View PR on GitHub>*`\n}\n\nreturn finalReport;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1904,
-        1136
-      ],
-      "id": "f3b73210-ef66-4bff-abb7-30634c977b34",
-      "name": "Format Data for Slack"
     }
   ],
   "connections": {
@@ -739,7 +956,7 @@
       "main": [
         [
           {
-            "node": "Get Users",
+            "node": "Format Data for Slack",
             "type": "main",
             "index": 0
           }
@@ -772,7 +989,7 @@
       "main": [
         [
           {
-            "node": "Get file's Diffs from PR",
+            "node": "Get Users",
             "type": "main",
             "index": 0
           }
@@ -900,22 +1117,102 @@
         ]
       ]
     },
-    "Get Users": {
+    "Format Data for Slack": {
       "main": [
         [
           {
-            "node": "Format Data for Slack",
+            "node": "Send a message",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Format Data for Slack": {
+    "Commit Message Breakdown": {
       "main": [
         [
           {
-            "node": "Send a message",
+            "node": "Is Merge?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send incorrect format message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Current User": {
+      "main": [
+        [
+          {
+            "node": "Commit Message Breakdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Merge?": {
+      "main": [
+        [
+          {
+            "node": "Get task details for PR",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get file's Diffs from PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update task status": {
+      "main": [
+        [
+          {
+            "node": "Updated Status Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get task details for PR": {
+      "main": [
+        [
+          {
+            "node": "Update task status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Updated Status Message": {
+      "main": [
+        [
+          {
+            "node": "Send message in slack with PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Users": {
+      "main": [
+        [
+          {
+            "node": "Get Current User",
             "type": "main",
             "index": 0
           }
