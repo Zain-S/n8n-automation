@@ -13,8 +13,8 @@
       "name": "OpenAI Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "position": [
-        2064,
-        1504
+        1840,
+        688
       ],
       "typeVersion": 1.2,
       "credentials": {
@@ -35,8 +35,8 @@
       "name": "Get file's Diffs from PR",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        1536,
-        1280
+        1312,
+        464
       ],
       "typeVersion": 4.2,
       "credentials": {
@@ -54,8 +54,8 @@
       "name": "Create target Prompt from PR Diffs",
       "type": "n8n-nodes-base.code",
       "position": [
-        1760,
-        1280
+        1536,
+        464
       ],
       "typeVersion": 2
     },
@@ -81,8 +81,8 @@
       "name": "GitHub Robot",
       "type": "n8n-nodes-base.github",
       "position": [
-        2336,
-        1280
+        2112,
+        464
       ],
       "webhookId": "39c2fe8b-f686-4699-8450-2a5b4c263d93",
       "typeVersion": 1.1,
@@ -119,8 +119,8 @@
       "name": "Add Label to PR",
       "type": "n8n-nodes-base.github",
       "position": [
-        2560,
-        1280
+        2336,
+        464
       ],
       "webhookId": "c98f39f1-603b-4013-9149-53b4cc31b611",
       "typeVersion": 1,
@@ -141,48 +141,10 @@
       "name": "Code Review Agent",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "position": [
-        1984,
-        1280
+        1760,
+        464
       ],
       "typeVersion": 1.9
-    },
-    {
-      "parameters": {},
-      "type": "n8n-nodes-base.manualTrigger",
-      "typeVersion": 1,
-      "position": [
-        -16,
-        -48
-      ],
-      "id": "26cedb76-fd20-44ed-9285-a7a14e74d3c8",
-      "name": "When clicking ‘Execute workflow’"
-    },
-    {
-      "parameters": {
-        "resource": "organization",
-        "owner": {
-          "__rl": true,
-          "value": "=techvention-healthcare",
-          "mode": "name"
-        },
-        "returnAll": true
-      },
-      "type": "n8n-nodes-base.github",
-      "typeVersion": 1.1,
-      "position": [
-        208,
-        -48
-      ],
-      "id": "7c1bcc03-ca28-4a0e-84b8-0855981c349f",
-      "name": "Get Repositories",
-      "webhookId": "d343075a-1316-446f-bbd2-a63812de4e5f",
-      "executeOnce": false,
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
     },
     {
       "parameters": {
@@ -249,393 +211,11 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        208,
-        1136
+        -32,
+        320
       ],
       "id": "f0111dd9-0c4e-4de1-a5bc-4e115fe639f3",
       "name": "Repo Setting"
-    },
-    {
-      "parameters": {
-        "owner": {
-          "__rl": true,
-          "value": "techvention-healthcare",
-          "mode": "name"
-        },
-        "repository": {
-          "__rl": true,
-          "value": "hms-ui",
-          "mode": "name"
-        },
-        "events": [
-          "pull_request"
-        ],
-        "options": {}
-      },
-      "type": "n8n-nodes-base.githubTrigger",
-      "typeVersion": 1,
-      "position": [
-        -16,
-        368
-      ],
-      "id": "d8f404d4-c564-4eb6-a516-5b2aefe13d8f",
-      "name": "HMS UI",
-      "webhookId": "2657b351-548a-4609-b186-0a31a953d5ab",
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "owner": {
-          "__rl": true,
-          "value": "techvention-healthcare",
-          "mode": "list"
-        },
-        "repository": {
-          "__rl": true,
-          "value": "doctors-mobile-app",
-          "mode": "list",
-          "cachedResultName": "doctors-mobile-app",
-          "cachedResultUrl": "https://github.com/techvention-healthcare/doctors-mobile-app"
-        },
-        "events": [
-          "pull_request"
-        ],
-        "options": {}
-      },
-      "id": "35361983-8c66-457e-8cb6-7585a18f8aaf",
-      "name": "Doctor Mobile App",
-      "type": "n8n-nodes-base.githubTrigger",
-      "position": [
-        -16,
-        176
-      ],
-      "webhookId": "2b8ec7bd-e65b-46d2-a2d9-082b137dd880",
-      "notesInFlow": false,
-      "typeVersion": 1,
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "owner": {
-          "__rl": true,
-          "value": "techvention-healthcare",
-          "mode": "name"
-        },
-        "repository": {
-          "__rl": true,
-          "value": "hms-api",
-          "mode": "list",
-          "cachedResultName": "hms-api",
-          "cachedResultUrl": "https://github.com/techvention-healthcare/hms-api"
-        },
-        "events": [
-          "pull_request"
-        ],
-        "options": {}
-      },
-      "type": "n8n-nodes-base.githubTrigger",
-      "typeVersion": 1,
-      "position": [
-        -16,
-        560
-      ],
-      "id": "2e6cb8d2-6c65-4034-a50c-608405851d77",
-      "name": "HMS Api",
-      "webhookId": "0a3ecb9c-53d9-4343-b34f-f449c221ef43",
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "owner": {
-          "__rl": true,
-          "value": "techvention-healthcare",
-          "mode": "name"
-        },
-        "repository": {
-          "__rl": true,
-          "value": "hms-meeting-ai-ui",
-          "mode": "list",
-          "cachedResultName": "hms-meeting-ai-ui",
-          "cachedResultUrl": "https://github.com/techvention-healthcare/hms-meeting-ai-ui"
-        },
-        "events": [
-          "pull_request"
-        ],
-        "options": {}
-      },
-      "type": "n8n-nodes-base.githubTrigger",
-      "typeVersion": 1,
-      "position": [
-        -16,
-        752
-      ],
-      "id": "4db4c9dc-2d26-4de6-aeae-f2a03ff5a584",
-      "name": "HMS Meeting AI UI",
-      "webhookId": "0a3ecb9c-53d9-4343-b34f-f449c221ef43",
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "owner": {
-          "__rl": true,
-          "value": "techvention-healthcare",
-          "mode": "name"
-        },
-        "repository": {
-          "__rl": true,
-          "value": "hms-meeting-ai-api",
-          "mode": "list",
-          "cachedResultName": "hms-meeting-ai-api",
-          "cachedResultUrl": "https://github.com/techvention-healthcare/hms-meeting-ai-api"
-        },
-        "events": [
-          "pull_request"
-        ],
-        "options": {}
-      },
-      "type": "n8n-nodes-base.githubTrigger",
-      "typeVersion": 1,
-      "position": [
-        -16,
-        944
-      ],
-      "id": "67b24a44-faa2-4886-9560-6ffe524e8d0b",
-      "name": "HMS Meeting AI API",
-      "webhookId": "0a3ecb9c-53d9-4343-b34f-f449c221ef43",
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "owner": {
-          "__rl": true,
-          "value": "techvention-healthcare",
-          "mode": "name"
-        },
-        "repository": {
-          "__rl": true,
-          "value": "sihha-app",
-          "mode": "name"
-        },
-        "events": [
-          "pull_request"
-        ],
-        "options": {}
-      },
-      "type": "n8n-nodes-base.githubTrigger",
-      "typeVersion": 1,
-      "position": [
-        -16,
-        1136
-      ],
-      "id": "29515053-0e32-4253-a2ce-77fa863cbf1b",
-      "name": "Siha App",
-      "webhookId": "0a3ecb9c-53d9-4343-b34f-f449c221ef43",
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "owner": {
-          "__rl": true,
-          "value": "techvention-healthcare",
-          "mode": "name"
-        },
-        "repository": {
-          "__rl": true,
-          "value": "patient-mobile-app",
-          "mode": "list",
-          "cachedResultName": "patient-mobile-app",
-          "cachedResultUrl": "https://github.com/techvention-healthcare/patient-mobile-app"
-        },
-        "events": [
-          "pull_request"
-        ],
-        "options": {}
-      },
-      "type": "n8n-nodes-base.githubTrigger",
-      "typeVersion": 1,
-      "position": [
-        -16,
-        1520
-      ],
-      "id": "cab6bb23-95b6-4ac6-808a-f270b1b757cb",
-      "name": "Patient Mobile App",
-      "webhookId": "0a3ecb9c-53d9-4343-b34f-f449c221ef43",
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "owner": {
-          "__rl": true,
-          "value": "techvention-healthcare",
-          "mode": "name"
-        },
-        "repository": {
-          "__rl": true,
-          "value": "gablink-ui",
-          "mode": "list",
-          "cachedResultName": "gablink-ui",
-          "cachedResultUrl": "https://github.com/techvention-healthcare/gablink-ui"
-        },
-        "events": [
-          "pull_request"
-        ],
-        "options": {}
-      },
-      "type": "n8n-nodes-base.githubTrigger",
-      "typeVersion": 1,
-      "position": [
-        -16,
-        1712
-      ],
-      "id": "0c13ca43-bd4b-49db-a6fb-ef54a7ae4c2e",
-      "name": "Gabilink UI",
-      "webhookId": "0a3ecb9c-53d9-4343-b34f-f449c221ef43",
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "owner": {
-          "__rl": true,
-          "value": "techvention-healthcare",
-          "mode": "name"
-        },
-        "repository": {
-          "__rl": true,
-          "value": "gablink-api",
-          "mode": "list",
-          "cachedResultName": "gablink-api",
-          "cachedResultUrl": "https://github.com/techvention-healthcare/gablink-api"
-        },
-        "events": [
-          "pull_request"
-        ],
-        "options": {}
-      },
-      "type": "n8n-nodes-base.githubTrigger",
-      "typeVersion": 1,
-      "position": [
-        -16,
-        1328
-      ],
-      "id": "01673891-54af-467b-a0b9-8ef0c64e861d",
-      "name": "Gabilink API",
-      "webhookId": "0a3ecb9c-53d9-4343-b34f-f449c221ef43",
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "owner": {
-          "__rl": true,
-          "value": "techvention-healthcare",
-          "mode": "name"
-        },
-        "repository": {
-          "__rl": true,
-          "value": "nodejs-hms-ai",
-          "mode": "list",
-          "cachedResultName": "nodejs-hms-ai",
-          "cachedResultUrl": "https://github.com/techvention-healthcare/nodejs-hms-ai"
-        },
-        "events": [
-          "pull_request"
-        ],
-        "options": {}
-      },
-      "type": "n8n-nodes-base.githubTrigger",
-      "typeVersion": 1,
-      "position": [
-        -16,
-        1904
-      ],
-      "id": "182bde39-c616-4ac3-9bef-b97c8f77f3fb",
-      "name": "NodeJS HMS AI",
-      "webhookId": "0a3ecb9c-53d9-4343-b34f-f449c221ef43",
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "owner": {
-          "__rl": true,
-          "value": "techvention-healthcare",
-          "mode": "name"
-        },
-        "repository": {
-          "__rl": true,
-          "value": "hms-mcp-ai",
-          "mode": "list",
-          "cachedResultName": "hms-mcp-ai",
-          "cachedResultUrl": "https://github.com/techvention-healthcare/hms-mcp-ai"
-        },
-        "events": [
-          "pull_request"
-        ],
-        "options": {}
-      },
-      "type": "n8n-nodes-base.githubTrigger",
-      "typeVersion": 1,
-      "position": [
-        -16,
-        2096
-      ],
-      "id": "c1eec856-87f4-4e91-833c-5f778eebbf2c",
-      "name": "HMS MCP AI",
-      "webhookId": "0a3ecb9c-53d9-4343-b34f-f449c221ef43",
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
     },
     {
       "parameters": {
@@ -644,8 +224,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2784,
-        1280
+        2560,
+        464
       ],
       "id": "f3b73210-ef66-4bff-abb7-30634c977b34",
       "name": "Format Data for Slack"
@@ -659,8 +239,8 @@
       "name": "Commit Message Breakdown",
       "type": "n8n-nodes-base.code",
       "position": [
-        880,
-        1136
+        640,
+        320
       ],
       "typeVersion": 2,
       "onError": "continueRegularOutput"
@@ -672,8 +252,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        656,
-        1136
+        416,
+        320
       ],
       "id": "08c6c416-cb3a-43ec-b91d-3f90326ff284",
       "name": "Get Current User"
@@ -716,8 +296,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1104,
-        1136
+        864,
+        320
       ],
       "id": "3f41533e-7885-4407-a2e5-99aab1b52070",
       "name": "Is Merge?"
@@ -739,8 +319,8 @@
       "name": "Update task status",
       "type": "n8n-nodes-base.jira",
       "position": [
-        2560,
-        992
+        2336,
+        176
       ],
       "typeVersion": 1,
       "credentials": {
@@ -762,8 +342,8 @@
       "name": "Get task details for PR",
       "type": "n8n-nodes-base.jira",
       "position": [
-        2336,
-        992
+        2112,
+        176
       ],
       "typeVersion": 1,
       "alwaysOutputData": false,
@@ -781,8 +361,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2784,
-        992
+        2560,
+        176
       ],
       "id": "bb17dead-b2d6-4181-83bd-9342219b0092",
       "name": "Updated Status Message"
@@ -809,8 +389,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        432,
-        1136
+        192,
+        320
       ],
       "id": "e7d80614-0918-4ebd-96d4-371216f8d325",
       "name": "Get Users",
@@ -838,8 +418,8 @@
       "name": "Send message in channel",
       "type": "n8n-nodes-base.slack",
       "position": [
-        3008,
-        1040
+        2784,
+        224
       ],
       "webhookId": "{YOUR_SLACK_WEBHOOK_ID}",
       "typeVersion": 2.3,
@@ -865,8 +445,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        3008,
-        1232
+        2784,
+        416
       ],
       "id": "bf6bb07d-d0ad-4af0-ae6a-eb7a24ca44df",
       "name": "Send message (Personal Testing)",
@@ -907,11 +487,204 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1312,
-        1232
+        1088,
+        464
       ],
       "id": "95985d22-1498-4eb4-8b47-0664394f24f4",
       "name": "If"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}/hooks",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"name\": \"web\", \n  \"active\": true,\n  \"events\": [\n    \"pull_request\"\n  ],\n  \"config\": {\n    \"url\": \"https://health.techvention.ae:9001/webhook/github/pr-events\",\n    \"content_type\": \"json\",\n    \"insecure_ssl\": \"0\"\n  }\n}\n",
+        "options": {}
+      },
+      "id": "77e5ec1a-beb0-4292-bf86-1d56f5439bf3",
+      "name": "Register Github Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        464,
+        -384
+      ],
+      "typeVersion": 4.2,
+      "executeOnce": false,
+      "credentials": {
+        "githubApi": {
+          "id": "SEYz6E5AQBY7Meoc",
+          "name": "GitHub account"
+        }
+      },
+      "disabled": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "method": "DELETE",
+        "url": "={{ $json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "options": {}
+      },
+      "id": "14f30f4c-de92-4136-856a-0af52db63c15",
+      "name": "Delete Github Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        480,
+        -48
+      ],
+      "typeVersion": 4.2,
+      "credentials": {
+        "githubApi": {
+          "id": "SEYz6E5AQBY7Meoc",
+          "name": "GitHub account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "content": "## Delete All Webhooks",
+        "height": 279.85434264975174,
+        "width": 858.0344141951173
+      },
+      "id": "3244f191-eced-4914-8e9e-09621f7a9787",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        -112
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "content": "## Register Webhooks",
+        "height": 283.2561904154995,
+        "width": 848.6550531504272
+      },
+      "id": "9ee67211-db6c-4ccc-9e59-e0d468e49170",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        -464
+      ],
+      "typeVersion": 1
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $json.owner.login }}/{{ $json.name }}/hooks",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "options": {}
+      },
+      "id": "e729b594-61f1-445e-9357-002950c42da7",
+      "name": "Get Existing Hook",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        144,
+        -32
+      ],
+      "typeVersion": 4.2,
+      "alwaysOutputData": false,
+      "credentials": {
+        "githubApi": {
+          "id": "SEYz6E5AQBY7Meoc",
+          "name": "GitHub account"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/user/orgs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        16,
+        -384
+      ],
+      "id": "5561a588-58f4-467c-a97a-944b5c19b857",
+      "name": "Get Organizations",
+      "executeOnce": false,
+      "credentials": {
+        "githubApi": {
+          "id": "SEYz6E5AQBY7Meoc",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -176,
+        -384
+      ],
+      "id": "26cedb76-fd20-44ed-9285-a7a14e74d3c8",
+      "name": "Click to Execute"
+    },
+    {
+      "parameters": {
+        "resource": "organization",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $json.login }}",
+          "mode": "name"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        224,
+        -384
+      ],
+      "id": "33c9d9fa-7b77-48fd-adb4-9e87f290b951",
+      "name": "Get Repositories",
+      "webhookId": "d343075a-1316-446f-bbd2-a63812de4e5f",
+      "executeOnce": false,
+      "credentials": {
+        "githubApi": {
+          "id": "SEYz6E5AQBY7Meoc",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "github/pr-events",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -256,
+        320
+      ],
+      "id": "a7e0a5b5-e62b-4963-8b12-ab34198e6455",
+      "name": "PR Events Webhook",
+      "webhookId": "35eb8df7-ca4f-45d4-ac03-19c8ddda7de8"
     }
   ],
   "connections": {
@@ -981,143 +754,11 @@
         ]
       ]
     },
-    "When clicking ‘Execute workflow’": {
-      "main": [
-        [
-          {
-            "node": "Get Repositories",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Repo Setting": {
       "main": [
         [
           {
             "node": "Get Users",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HMS UI": {
-      "main": [
-        [
-          {
-            "node": "Repo Setting",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Doctor Mobile App": {
-      "main": [
-        [
-          {
-            "node": "Repo Setting",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HMS Api": {
-      "main": [
-        [
-          {
-            "node": "Repo Setting",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HMS Meeting AI UI": {
-      "main": [
-        [
-          {
-            "node": "Repo Setting",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HMS Meeting AI API": {
-      "main": [
-        [
-          {
-            "node": "Repo Setting",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Siha App": {
-      "main": [
-        [
-          {
-            "node": "Repo Setting",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Patient Mobile App": {
-      "main": [
-        [
-          {
-            "node": "Repo Setting",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Gabilink UI": {
-      "main": [
-        [
-          {
-            "node": "Repo Setting",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Gabilink API": {
-      "main": [
-        [
-          {
-            "node": "Repo Setting",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "NodeJS HMS AI": {
-      "main": [
-        [
-          {
-            "node": "Repo Setting",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HMS MCP AI": {
-      "main": [
-        [
-          {
-            "node": "Repo Setting",
             "type": "main",
             "index": 0
           }
@@ -1235,6 +876,66 @@
         [
           {
             "node": "Get file's Diffs from PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Existing Hook": {
+      "main": [
+        [
+          {
+            "node": "Delete Github Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Organizations": {
+      "main": [
+        [
+          {
+            "node": "Get Repositories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Click to Execute": {
+      "main": [
+        [
+          {
+            "node": "Get Organizations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Repositories": {
+      "main": [
+        [
+          {
+            "node": "Register Github Webhook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Existing Hook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PR Events Webhook": {
+      "main": [
+        [
+          {
+            "node": "Repo Setting",
             "type": "main",
             "index": 0
           }
