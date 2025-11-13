@@ -219,7 +219,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const error = $('Commit Message Breakdown').item.json.error\n\n// === Input data ===\nconst users = $(\"Get Users\").all(); // from Google Sheets node\n\n// === Helper: Find user safely ===\nfunction findGithub(username) {\n  return users.find(u => u.json.Github_UserName?.toLowerCase() === username.toLowerCase());\n}\n\n// Get the user info from GitHub username, assuming you have Slack user ID available as well\nconst submitted_user = findGithub($('Add Label to PR').first().json.user.login);\nconst slack_user_id = submitted_user?.json?.Slack_User_id || '';  // Assuming Slack User ID is available in the data\n\nconst ai_review = $('Code Review Agent').first().json.output;\nconst pr_title = $('Repo Setting').first().json.pr_title;\nconst pr_description = $('Repo Setting').first().json.pr_description || \"\";\nconst pr_link = $('Repo Setting').first().json.pr_link;\n\nconst message = `*🚀 New PR Submitted - Reviewed by AI*\\n🔹 *Submitted by*: <@${slack_user_id}> \\n *📜 PR Title*: *<${pr_link}|${pr_title}>*\\n *📝 PR Description*: ${pr_description || 'No description provided'}\\n\\n *🤖 AI Review*:\\n${ai_review}\\n *🔗 PR Link*: *<${pr_link}|View PR on GitHub>*`\n\nlet finalMessage = ''\nif (error) {\n  finalMessage = error + '\\n' + message\n} else {\n  finalMessage = message\n}\n\n// === Final merged report ===\nconst finalReport = {\n  text: finalMessage\n}\n\nreturn finalReport;"
+        "jsCode": "const error = $('Commit Message Breakdown').item.json.error\n\n// === Input data ===\nconst users = $(\"Get Users\").all(); // from Google Sheets node\n\n// === Helper: Find user safely ===\nfunction findGithub(username) {\n  return users.find(u => u.json.Github_UserName?.toLowerCase() === username.toLowerCase());\n}\n\n// Get the user info from GitHub username, assuming you have Slack user ID available as well\nconst submitted_user = findGithub($('Add Label to PR').first().json.user.login);\nconst slack_user_id = submitted_user?.json?.Slack_User_id || '';  // Assuming Slack User ID is available in the data\n\nconst ai_review = $('Code Review Agent').first().json.output;\nconst pr_title = $('Repo Setting').first().json.pr_title;\nconst pr_description = $('Repo Setting').first().json.pr_description || \"\";\nconst pr_link = $('PR Events Webhook').first().json.body.pull_request.html_url;\n\nconst message = `*🚀 New PR Submitted - Reviewed by AI*\\n🔹 *Submitted by*: <@${slack_user_id}> \\n *📜 PR Title*: *<${pr_link}|${pr_title}>*\\n *📝 PR Description*: ${pr_description || 'No description provided'}\\n\\n *🤖 AI Review*:\\n${ai_review}\\n *🔗 PR Link*: *<${pr_link}|View PR on GitHub>*`\n\nlet finalMessage = ''\nif (error) {\n  finalMessage = error + '\\n' + message\n} else {\n  finalMessage = message\n}\n\n// === Final merged report ===\nconst finalReport = {\n  text: finalMessage\n}\n\nreturn finalReport;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -356,7 +356,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const prTitle = $('Repo Setting').first().json.pr_title;\nconst prLink = $('Repo Setting').first().json.pr_link;\nconst prDescription = $('Repo Setting').first().json.pr_description;\nconst slackUserId = $('Get Current User').first().json.submitted_user.Slack_User_id\n\nconst inputUrl = $('Get task details for PR').first().json.self\nconst taskKey = $('Get task details for PR').first().json.key\nconst taskLink = inputUrl.replace(/\\/issue\\/\\d+$/, `/browse/${taskKey}`);\nconst taskSummary = $('Get task details for PR').first().json.fields.summary\n\nlet text = `*:white_check_mark: PR Merged - Task Status Moved to Done *\\n🔹 *Submitted by*: <@${slackUserId}> \\n *📜 Task*: *<${taskLink}|${taskSummary}>*\\n *📜 PR Title*: *<${prLink}|${prTitle}>*\\n *📝 PR Description*: ${prDescription || 'No description provided'}\\n\\n *🔗 PR Link*: *<${prLink}|View PR on GitHub>*`;\nreturn {\n  text\n};"
+        "jsCode": "const prTitle = $('Repo Setting').first().json.pr_title;\nconst prLink = $('PR Events Webhook').first().json.body.pull_request.html_url;\nconst prDescription = $('Repo Setting').first().json.pr_description;\nconst slackUserId = $('Get Current User').first().json.submitted_user.Slack_User_id\n\nconst inputUrl = $('Get task details for PR').first().json.self\nconst taskKey = $('Get task details for PR').first().json.key\nconst taskLink = inputUrl.split('/rest/api')[0] + '/browse/' + taskKey;\nconst taskSummary = $('Get task details for PR').first().json.fields.summary\n\nlet text = `*:white_check_mark: PR Merged - Task Status Moved to Done *\\n🔹 *Submitted by*: <@${slackUserId}> \\n *📜 Task*: *<${taskLink}|${taskSummary}>*\\n *📜 PR Title*: *<${prLink}|${prTitle}>*\\n *📝 PR Description*: ${prDescription || 'No description provided'}\\n\\n *🔗 PR Link*: *<${prLink}|View PR on GitHub>*`;\nreturn {\n  text\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -458,40 +458,6 @@
         }
       },
       "disabled": true
-    },
-    {
-      "parameters": {
-        "conditions": {
-          "options": {
-            "caseSensitive": true,
-            "leftValue": "",
-            "typeValidation": "strict",
-            "version": 2
-          },
-          "conditions": [
-            {
-              "id": "b6b59238-e853-4358-9286-2f9de25d563b",
-              "leftValue": "={{ $('Repo Setting').first().json.state }}",
-              "rightValue": "open",
-              "operator": {
-                "type": "string",
-                "operation": "equals",
-                "name": "filter.operator.equals"
-              }
-            }
-          ],
-          "combinator": "and"
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.if",
-      "typeVersion": 2.2,
-      "position": [
-        1088,
-        464
-      ],
-      "id": "95985d22-1498-4eb4-8b47-0664394f24f4",
-      "name": "If"
     },
     {
       "parameters": {
@@ -685,6 +651,69 @@
       "id": "a7e0a5b5-e62b-4963-8b12-ab34198e6455",
       "name": "PR Events Webhook",
       "webhookId": "35eb8df7-ca4f-45d4-ac03-19c8ddda7de8"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.url }}/hooks",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "{\n  \"name\": \"web\", \n  \"active\": true,\n  \"events\": [\n    \"pull_request\"\n  ],\n  \"config\": {\n    \"url\": \"https://health.techvention.ae:9001/webhook-test/github/pr-events\",\n    \"content_type\": \"json\",\n    \"insecure_ssl\": \"0\"\n  }\n}\n",
+        "options": {}
+      },
+      "id": "3bd0a408-daf5-4a96-96da-b5392e42432f",
+      "name": "Register Test Github Webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        464,
+        -672
+      ],
+      "typeVersion": 4.2,
+      "executeOnce": false,
+      "credentials": {
+        "githubApi": {
+          "id": "SEYz6E5AQBY7Meoc",
+          "name": "GitHub account"
+        }
+      },
+      "disabled": true,
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b6b59238-e853-4358-9286-2f9de25d563b",
+              "leftValue": "={{ $('Repo Setting').first().json.state }}",
+              "rightValue": "open",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1088,
+        464
+      ],
+      "id": "95985d22-1498-4eb4-8b47-0664394f24f4",
+      "name": "Is PR Open?"
     }
   ],
   "connections": {
@@ -815,7 +844,7 @@
         ],
         [
           {
-            "node": "If",
+            "node": "Is PR Open?",
             "type": "main",
             "index": 0
           }
@@ -871,17 +900,6 @@
         ]
       ]
     },
-    "If": {
-      "main": [
-        [
-          {
-            "node": "Get file's Diffs from PR",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Get Existing Hook": {
       "main": [
         [
@@ -927,6 +945,11 @@
             "node": "Get Existing Hook",
             "type": "main",
             "index": 0
+          },
+          {
+            "node": "Register Test Github Webhook",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
@@ -936,6 +959,17 @@
         [
           {
             "node": "Repo Setting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is PR Open?": {
+      "main": [
+        [
+          {
+            "node": "Get file's Diffs from PR",
             "type": "main",
             "index": 0
           }
