@@ -72,7 +72,7 @@
           "value": "={{ $('Repo Setting').first().json.repo_name }}",
           "mode": "name"
         },
-        "pullRequestNumber": "={{ $('Doctor Mobile App').first().json.body.number }}",
+        "pullRequestNumber": "={{ $('Repo Setting').first().json.pr_number }}",
         "event": "comment",
         "body": "={{ $json.output }}",
         "additionalFields": {}
@@ -106,7 +106,7 @@
           "value": "={{ $('Repo Setting').first().json.repo_name }}",
           "mode": "name"
         },
-        "issueNumber": "={{ $('Doctor Mobile App').first().json.body.number }}",
+        "issueNumber": "={{ $('Repo Setting').first().json.pr_number }}",
         "editFields": {
           "labels": [
             {
