@@ -13,8 +13,8 @@
       "name": "OpenAI Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "position": [
-        1856,
-        1424
+        2064,
+        1504
       ],
       "typeVersion": 1.2,
       "credentials": {
@@ -35,8 +35,8 @@
       "name": "Get file's Diffs from PR",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        1328,
-        1200
+        1536,
+        1280
       ],
       "typeVersion": 4.2,
       "credentials": {
@@ -54,8 +54,8 @@
       "name": "Create target Prompt from PR Diffs",
       "type": "n8n-nodes-base.code",
       "position": [
-        1552,
-        1200
+        1760,
+        1280
       ],
       "typeVersion": 2
     },
@@ -81,8 +81,8 @@
       "name": "GitHub Robot",
       "type": "n8n-nodes-base.github",
       "position": [
-        2128,
-        1200
+        2336,
+        1280
       ],
       "webhookId": "39c2fe8b-f686-4699-8450-2a5b4c263d93",
       "typeVersion": 1.1,
@@ -119,8 +119,8 @@
       "name": "Add Label to PR",
       "type": "n8n-nodes-base.github",
       "position": [
-        2352,
-        1200
+        2560,
+        1280
       ],
       "webhookId": "c98f39f1-603b-4013-9149-53b4cc31b611",
       "typeVersion": 1,
@@ -141,8 +141,8 @@
       "name": "Code Review Agent",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "position": [
-        1776,
-        1200
+        1984,
+        1280
       ],
       "typeVersion": 1.9
     },
@@ -639,41 +639,13 @@
     },
     {
       "parameters": {
-        "select": "user",
-        "user": {
-          "__rl": true,
-          "value": "U07UN5Y6FNF",
-          "mode": "list",
-          "cachedResultName": "zain.saeed"
-        },
-        "text": "={{ $json.text }}",
-        "otherOptions": {}
-      },
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
-      "position": [
-        2800,
-        1200
-      ],
-      "id": "bf6bb07d-d0ad-4af0-ae6a-eb7a24ca44df",
-      "name": "Send a message",
-      "webhookId": "79596c6f-10c6-4452-af07-37637493b99e",
-      "credentials": {
-        "slackApi": {
-          "id": "1PPlFAPnbiUMnQUF",
-          "name": "Slack account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "jsCode": "// === Input data ===\nconst users = $(\"Get Users\").all(); // from Google Sheets node\n\n// === Helper: Find user safely ===\nfunction findGithub(username) {\n  return users.find(u => u.json.Github_UserName?.toLowerCase() === username.toLowerCase());\n}\n\n// Get the user info from GitHub username, assuming you have Slack user ID available as well\nconst submitted_user = findGithub($('Add Label to PR').first().json.user.login);\nconst slack_user_id = submitted_user?.json?.Slack_User_id || '';  // Assuming Slack User ID is available in the data\n\nconst ai_review = $('Code Review Agent').first().json.output;\nconst pr_title = $('Repo Setting').first().json.pr_title;\nconst pr_description = $('Repo Setting').first().json.pr_description || \"\";\nconst pr_link = $('Repo Setting').first().json.pr_link;\n\n// === Final merged report ===\nconst finalReport = {\n  text: `*🚀 New PR Submitted - Reviewed by AI*\\n🔹 *Submitted by*: <@${slack_user_id}> \\n *📜 PR Title*: *<${pr_link}|${pr_title}>*\\n *📝 PR Description*: ${pr_description || 'No description provided'}\\n\\n *🤖 AI Review*:\\n${ai_review}\\n *🔗 PR Link*: *<${pr_link}|View PR on GitHub>*`\n}\n\nreturn finalReport;"
+        "jsCode": "const error = $('Commit Message Breakdown').item.json.error\n\n// === Input data ===\nconst users = $(\"Get Users\").all(); // from Google Sheets node\n\n// === Helper: Find user safely ===\nfunction findGithub(username) {\n  return users.find(u => u.json.Github_UserName?.toLowerCase() === username.toLowerCase());\n}\n\n// Get the user info from GitHub username, assuming you have Slack user ID available as well\nconst submitted_user = findGithub($('Add Label to PR').first().json.user.login);\nconst slack_user_id = submitted_user?.json?.Slack_User_id || '';  // Assuming Slack User ID is available in the data\n\nconst ai_review = $('Code Review Agent').first().json.output;\nconst pr_title = $('Repo Setting').first().json.pr_title;\nconst pr_description = $('Repo Setting').first().json.pr_description || \"\";\nconst pr_link = $('Repo Setting').first().json.pr_link;\n\nconst message = `*🚀 New PR Submitted - Reviewed by AI*\\n🔹 *Submitted by*: <@${slack_user_id}> \\n *📜 PR Title*: *<${pr_link}|${pr_title}>*\\n *📝 PR Description*: ${pr_description || 'No description provided'}\\n\\n *🤖 AI Review*:\\n${ai_review}\\n *🔗 PR Link*: *<${pr_link}|View PR on GitHub>*`\n\nlet finalMessage = ''\nif (error) {\n  finalMessage = error + '\\n' + message\n} else {\n  finalMessage = message\n}\n\n// === Final merged report ===\nconst finalReport = {\n  text: finalMessage\n}\n\nreturn finalReport;"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2576,
-        1200
+        2784,
+        1280
       ],
       "id": "f3b73210-ef66-4bff-abb7-30634c977b34",
       "name": "Format Data for Slack"
@@ -681,7 +653,7 @@
     {
       "parameters": {
         "mode": "runOnceForEachItem",
-        "jsCode": "const prTitle = $('Repo Setting').first().json.pr_title;\nconst prLink = $('Repo Setting').first().json.pr_link;\nconst prDescription = $('Repo Setting').first().json.pr_description;\nconst slackUserId = $json.submitted_user.Slack_User_id;\n\n// Updated regex to make the [...] part optional\nconst regex = /^([A-Z]+-\\d+)\\s(.*?)(?:\\s\\[(.*)\\])?$/;\nconst match = prTitle.match(regex);\nlet error;\nif (!match) {\n  error = `*:x: New PR Submitted - Incorrect Format*\\n🔹 *Submitted by*: <@${slackUserId}> \\n *📜 PR Title*: *<${prLink}|${prTitle}>*\\n *📝 PR Description*: ${prDescription || 'No description provided'}\\n\\n *:warning: Error*:Commit message format is incorrect. Missing task key or message. Correct Format is: [PROJECT_KEY-ISSUE_NUMBER] Commit description\\n *🔗 PR Link*: *<${prLink}|View PR on GitHub>*`;\n  return {\n    error\n  };\n}\n\nconst jiraKey = match[1];\nconst commitDescription = match[2].trim();\nconst flagString = match[3];\nconst flags = flagString ? flagString.split(',').map(s => s.trim()) : [];\n\nreturn {\n  json: {\n    jiraKey,\n    commitDescription,\n    commands: flags,\n  }\n};\n"
+        "jsCode": "const prTitle = $('Repo Setting').first().json.pr_title;\nconst prLink = $('Repo Setting').first().json.pr_link;\nconst prDescription = $('Repo Setting').first().json.pr_description;\nconst slackUserId = $json.submitted_user.Slack_User_id;\n\n// Updated regex to make the [...] part optional\nconst regex = /^([A-Z]+-\\d+)\\s(.*?)(?:\\s\\[(.*)\\])?$/;\nconst match = prTitle.match(regex);\nlet error;\nif (!match) {\n  error = `*:x: Incorrect Format*\\n *:warning: Error*: Commit message format is incorrect. Missing task key or message. Correct Format is: [PROJECT_KEY-ISSUE_NUMBER] Commit description`;\n  return {\n    error\n  };\n}\n\nconst jiraKey = match[1];\nconst commitDescription = match[2].trim();\nconst flagString = match[3];\nconst flags = flagString ? flagString.split(',').map(s => s.trim()) : [];\n\nreturn {\n  json: {\n    jiraKey,\n    commitDescription,\n    commands: flags,\n  }\n};\n"
       },
       "id": "b56acc72-d9ed-461d-aef3-1250d2783318",
       "name": "Commit Message Breakdown",
@@ -691,7 +663,7 @@
         1136
       ],
       "typeVersion": 2,
-      "onError": "continueErrorOutput"
+      "onError": "continueRegularOutput"
     },
     {
       "parameters": {
@@ -705,34 +677,6 @@
       ],
       "id": "08c6c416-cb3a-43ec-b91d-3f90326ff284",
       "name": "Get Current User"
-    },
-    {
-      "parameters": {
-        "select": "user",
-        "user": {
-          "__rl": true,
-          "value": "U07UN5Y6FNF",
-          "mode": "list",
-          "cachedResultName": "zain.saeed"
-        },
-        "text": "={{ $json.error }}",
-        "otherOptions": {}
-      },
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
-      "position": [
-        1104,
-        1232
-      ],
-      "id": "8fd296a5-f9d0-4340-89f2-9f26e79565db",
-      "name": "Send incorrect format message",
-      "webhookId": "316d5b14-a78b-4d02-950c-f08facadc09e",
-      "credentials": {
-        "slackApi": {
-          "id": "1PPlFAPnbiUMnQUF",
-          "name": "Slack account"
-        }
-      }
     },
     {
       "parameters": {
@@ -773,7 +717,7 @@
       "typeVersion": 2.2,
       "position": [
         1104,
-        1040
+        1136
       ],
       "id": "3f41533e-7885-4407-a2e5-99aab1b52070",
       "name": "Is Merge?"
@@ -795,42 +739,14 @@
       "name": "Update task status",
       "type": "n8n-nodes-base.jira",
       "position": [
-        1552,
-        896
+        2560,
+        992
       ],
       "typeVersion": 1,
       "credentials": {
         "jiraSoftwareCloudApi": {
           "id": "rc52vTNzhFT3n15c",
           "name": "Jira SW Cloud account"
-        }
-      }
-    },
-    {
-      "parameters": {
-        "select": "channel",
-        "channelId": {
-          "__rl": true,
-          "value": "C09T8H01V1N",
-          "mode": "list",
-          "cachedResultName": "techvention-pr-reviews"
-        },
-        "text": "={{ $json.message }}",
-        "otherOptions": {}
-      },
-      "id": "044bf33f-4479-496e-91df-35d571b07af8",
-      "name": "Send message in slack with PR",
-      "type": "n8n-nodes-base.slack",
-      "position": [
-        2128,
-        896
-      ],
-      "webhookId": "{YOUR_SLACK_WEBHOOK_ID}",
-      "typeVersion": 2.3,
-      "credentials": {
-        "slackApi": {
-          "id": "1PPlFAPnbiUMnQUF",
-          "name": "Slack account"
         }
       }
     },
@@ -846,8 +762,8 @@
       "name": "Get task details for PR",
       "type": "n8n-nodes-base.jira",
       "position": [
-        1328,
-        896
+        2336,
+        992
       ],
       "typeVersion": 1,
       "alwaysOutputData": false,
@@ -860,13 +776,13 @@
     },
     {
       "parameters": {
-        "jsCode": "const prTitle = $('Repo Setting').first().json.pr_title;\nconst prLink = $('Repo Setting').first().json.pr_link;\nconst prDescription = $('Repo Setting').first().json.pr_description;\nconst slackUserId = $('Get Current User').first().json.submitted_user.Slack_User_id\n\nconst inputUrl = $('Get task details for PR').first().json.self\nconst taskKey = $('Get task details for PR').first().json.key\nconst taskLink = inputUrl.replace(/\\/issue\\/\\d+$/, `/browse/${taskKey}`);\nconst taskSummary = $('Get task details for PR').first().json.fields.summary\n\nlet message = `*:white_check_mark: PR Merged - Task Status Moved to Done *\\n🔹 *Submitted by*: <@${slackUserId}> \\n *📜 Task*: *<${taskLink}|${taskSummary}>*\\n *📜 PR Title*: *<${prLink}|${prTitle}>*\\n *📝 PR Description*: ${prDescription || 'No description provided'}\\n\\n *🔗 PR Link*: *<${prLink}|View PR on GitHub>*`;\nreturn {\n  message\n};"
+        "jsCode": "const prTitle = $('Repo Setting').first().json.pr_title;\nconst prLink = $('Repo Setting').first().json.pr_link;\nconst prDescription = $('Repo Setting').first().json.pr_description;\nconst slackUserId = $('Get Current User').first().json.submitted_user.Slack_User_id\n\nconst inputUrl = $('Get task details for PR').first().json.self\nconst taskKey = $('Get task details for PR').first().json.key\nconst taskLink = inputUrl.replace(/\\/issue\\/\\d+$/, `/browse/${taskKey}`);\nconst taskSummary = $('Get task details for PR').first().json.fields.summary\n\nlet text = `*:white_check_mark: PR Merged - Task Status Moved to Done *\\n🔹 *Submitted by*: <@${slackUserId}> \\n *📜 Task*: *<${taskLink}|${taskSummary}>*\\n *📜 PR Title*: *<${prLink}|${prTitle}>*\\n *📝 PR Description*: ${prDescription || 'No description provided'}\\n\\n *🔗 PR Link*: *<${prLink}|View PR on GitHub>*`;\nreturn {\n  text\n};"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1840,
-        896
+        2784,
+        992
       ],
       "id": "bb17dead-b2d6-4181-83bd-9342219b0092",
       "name": "Updated Status Message"
@@ -905,6 +821,97 @@
           "name": "Google Sheets account"
         }
       }
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C09T8H01V1N",
+          "mode": "list",
+          "cachedResultName": "techvention-pr-reviews"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "id": "044bf33f-4479-496e-91df-35d571b07af8",
+      "name": "Send message in channel",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3008,
+        1040
+      ],
+      "webhookId": "{YOUR_SLACK_WEBHOOK_ID}",
+      "typeVersion": 2.3,
+      "credentials": {
+        "slackApi": {
+          "id": "1PPlFAPnbiUMnQUF",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "U07UN5Y6FNF",
+          "mode": "list",
+          "cachedResultName": "zain.saeed"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        3008,
+        1232
+      ],
+      "id": "bf6bb07d-d0ad-4af0-ae6a-eb7a24ca44df",
+      "name": "Send message (Personal Testing)",
+      "webhookId": "79596c6f-10c6-4452-af07-37637493b99e",
+      "credentials": {
+        "slackApi": {
+          "id": "1PPlFAPnbiUMnQUF",
+          "name": "Slack account"
+        }
+      },
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b6b59238-e853-4358-9286-2f9de25d563b",
+              "leftValue": "={{ $('Repo Setting').first().json.state }}",
+              "rightValue": "open",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1312,
+        1232
+      ],
+      "id": "95985d22-1498-4eb4-8b47-0664394f24f4",
+      "name": "If"
     }
   ],
   "connections": {
@@ -1121,7 +1128,12 @@
       "main": [
         [
           {
-            "node": "Send a message",
+            "node": "Send message (Personal Testing)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send message in channel",
             "type": "main",
             "index": 0
           }
@@ -1137,13 +1149,7 @@
             "index": 0
           }
         ],
-        [
-          {
-            "node": "Send incorrect format message",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Get Current User": {
@@ -1168,7 +1174,7 @@
         ],
         [
           {
-            "node": "Get file's Diffs from PR",
+            "node": "If",
             "type": "main",
             "index": 0
           }
@@ -1201,7 +1207,12 @@
       "main": [
         [
           {
-            "node": "Send message in slack with PR",
+            "node": "Send message in channel",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send message (Personal Testing)",
             "type": "main",
             "index": 0
           }
@@ -1213,6 +1224,17 @@
         [
           {
             "node": "Get Current User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get file's Diffs from PR",
             "type": "main",
             "index": 0
           }
