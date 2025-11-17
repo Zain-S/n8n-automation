@@ -352,7 +352,7 @@
     },
     {
       "parameters": {
-        "jsCode": "// Create an object to store the counts\nconst commits = $input.all(); // All commits from the previous node\n\n// Create an object to store the counts\n/** @type {{ [key: string]: {user: {}, commits: [{}]} }} */\nlet commitReport = {};\n\n// Group commits by the author's login (as the key) and store the complete user object\ncommits.forEach(commit => {\n  if (!commit.json.error) {\n    const username = commit.json.author.login; // Using 'login' as the key for grouping (you can adjust this if necessary)\n    const user = commit.json.author;  // Complete user object\n\n    // If the user already exists in commitReport, add the commit to their list\n    if (commitReport[username]) {\n      commitReport[username].commits.push(commit.json);\n    } else {\n      // If the user is not already in the object, initialize their entry\n      commitReport[username] = {\n        user: user,           // Store the complete user object\n        commits: [commit.json]     // Initialize the commit list with the current commit\n      };\n    }\n  }\n});\n\n// Convert the result into an array of objects with username and commit details\nconst result = Object.keys(commitReport).map(username => ({\n  user: commitReport[username].user,  // Include the complete user object\n  commits: commitReport[username].commits  // Include the list of commits\n}));\n\n// Return the result in the expected n8n format\nreturn { json: { commit_report: result } };\n"
+        "jsCode": "// Create an object to store the counts\nconst commits = $input.all(); // All commits from the previous node\n\n// Create an object to store the counts\n/** @type {{ [key: string]: {user: {}, commits: [{}]} }} */\nlet commitReport = {};\n\n// Group commits by the author's login (as the key) and store the complete user object\ncommits.forEach(commit => {\n  if (!commit.json.error && commit.json.author != null) {\n    const username = commit.json.author.login; // Using 'login' as the key for grouping (you can adjust this if necessary)\n    const user = commit.json.author;  // Complete user object\n\n    // If the user already exists in commitReport, add the commit to their list\n    if (commitReport[username]) {\n      commitReport[username].commits.push(commit.json);\n    } else {\n      // If the user is not already in the object, initialize their entry\n      commitReport[username] = {\n        user: user,           // Store the complete user object\n        commits: [commit.json]     // Initialize the commit list with the current commit\n      };\n    }\n  }\n});\n\n// Convert the result into an array of objects with username and commit details\nconst result = Object.keys(commitReport).map(username => ({\n  user: commitReport[username].user,  // Include the complete user object\n  commits: commitReport[username].commits  // Include the list of commits\n}));\n\n// Return the result in the expected n8n format\nreturn { json: { commit_report: result } };\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -549,6 +549,7 @@
       ],
       "id": "fd7a1fe8-45e9-44bb-ba3d-6879fc60d3da",
       "name": "Get Done Issues (Days)",
+      "retryOnFail": true,
       "credentials": {
         "jiraSoftwareCloudApi": {
           "id": "rc52vTNzhFT3n15c",
@@ -654,9 +655,9 @@
         "select": "user",
         "user": {
           "__rl": true,
-          "value": "U033AAC2DQD",
+          "value": "U07UN5Y6FNF",
           "mode": "list",
-          "cachedResultName": "afraz.pucit"
+          "cachedResultName": "zain.saeed"
         },
         "text": "={{ $json.text }}",
         "otherOptions": {}
