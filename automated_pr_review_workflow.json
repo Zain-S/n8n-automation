@@ -48,7 +48,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const files = $input.all().map(item => item.json);\n\nlet diffs = '';\n\nfor (const file of files) {\n  diffs += `### File: ${file.filename}\\n\\n`;\n\n  if (file.patch) {\n    // Replace triple backticks to avoid breaking Markdown\n    const safePatch = file.patch.replace(/```/g, \"''\");\n\n    diffs += \"```diff\\n\";\n    diffs += safePatch;\n    diffs += \"\\n```\\n\";\n  } else {\n    diffs += \"_No patch available (likely a binary file)._\";\n  }\n\n  diffs += \"\\n---\\n\\n\";\n}\n\n// =====================\n// INDUSTRY-GRADE HYBRID PROMPT\n// =====================\nconst userMessage = `\nYou are an Industrial-Standard Senior Code Reviewer trained on Google, Meta, and Microsoft code review guidelines.\n\nSTRICT RULES:\n- Review ONLY the diff below.\n- Never assume missing code.\n- Never invent functions, imports, or context not visible in the diff.\n- No greetings, no intros, no summaries — ONLY issues.\n- Keep each issue 1–3 lines max.\n- Use category headings ONLY if issues exist.\n- If a category has no issues, write: \"✅ No {Category Name}\" as title. e.g. ✅ No Critical Issue\n- Category name style must match exactly as below.\n\nPRIORITY ORDER (in FAANG style):\n1. Security issues (OWASP)\n2. Memory leaks\n3. CPU-heavy logic\n4. Redundant or dead logic\n5. Architecture / design-pattern issues\n6. Performance problems (N+1 queries, huge loops)\n7. Maintainability & readability\n8. Google Style Guide compliance\n\nTEST RULE:\nIf logic changes → mention tests that should be created or updated.\n\nOUTPUT FORMAT (MANDATORY):\n📝 AI Code Review Summary\nOverall quality: {1–10}\n\n🔴 Critical Issues\n(If issues exist → list as)\n- Issue:\n- Suggestion:\n(If none → DO NOT show the heading, output ONLY: \"✅ No Critical Issues\")\n\n🟠 Major Issues\n(same rules)\n\n🟡 Moderate Issues\n(same rules)\n\n🔵 Minor Issues\n(same rules)\n\n🧪 Missing Tests\n(same rules)\n\n💡 Suggestions for Improvement\n- Improvement:\n\n---\n\nNow review ONLY these code changes:\n\n${diffs}\n`;\n\nreturn [\n  {\n    json: {\n      user_message: userMessage.trim()\n    }\n  }\n];\n"
+        "jsCode": "const files = $input.all().map(item => item.json);\n\nlet diffs = '';\n\nfor (const file of files) {\n  diffs += `### File: ${file.filename}\\n\\n`;\n\n  if (file.patch) {\n    // Replace triple backticks to avoid breaking Markdown\n    const safePatch = file.patch.replace(/```/g, \"''\");\n\n    diffs += \"```diff\\n\";\n    diffs += safePatch;\n    diffs += \"\\n```\\n\";\n  } else {\n    diffs += \"_No patch available (likely a binary file)._\";\n  }\n\n  diffs += \"\\n---\\n\\n\";\n}\n\n// =====================\n// INDUSTRY-GRADE HYBRID PROMPT\n// =====================\nconst userMessage = `\nYou are an Industrial-Standard Senior Code Reviewer trained on Google, Meta, and Microsoft code review guidelines.\n\nSTRICT RULES:\n- Review ONLY the diff below.\n- Never assume missing code.\n- Never invent functions, imports, or context not visible in the diff.\n- No greetings, no intros, no summaries — ONLY issues.\n- Keep each issue 1–3 lines max.\n- Use category headings ONLY if issues exist.\n- If a category has no issues, write: \"✅ No {Category Name}\" as title. e.g. ✅ No Critical Issue\n- Category name style must match exactly as below.\n\nSPECIAL RULE:\n- If ALL categories have no issues AND no missing tests → end response with:\n  :white_check_mark: *Awesome good job here we go 🚀*\n\nPRIORITY ORDER (in FAANG style):\n1. Security issues (OWASP)\n2. Memory leaks\n3. CPU-heavy logic\n4. Redundant or dead logic\n5. Architecture / design-pattern issues\n6. Performance problems (N+1 queries, huge loops)\n7. Maintainability & readability\n8. Google Style Guide compliance\n\nTEST RULE:\nIf logic changes → mention tests that should be created or updated.\n\nOUTPUT FORMAT (MANDATORY):\n📝 AI Code Review Summary\nOverall quality: {1–10}\n\n🔴 Critical Issues\n(If issues exist → list as)\n- Issue:\n- Suggestion:\n(If none → DO NOT show the heading, output ONLY: \"✅ No Critical Issues\")\n\n🟠 Major Issues\n(same rules)\n\n🟡 Moderate Issues\n(same rules)\n\n🔵 Minor Issues\n(same rules)\n\n🧪 Missing Tests\n(same rules)\n\n💡 Suggestions for Improvement\n- Improvement:\n\n---\n\nNow review ONLY these code changes:\n\n${diffs}\n`;\n\nreturn [\n  {\n    json: {\n      user_message: userMessage.trim()\n    }\n  }\n];\n"
       },
       "id": "f984f872-c4b0-4752-bc54-1f311fa36feb",
       "name": "Create target Prompt from PR Diffs",
@@ -428,7 +428,8 @@
           "id": "1PPlFAPnbiUMnQUF",
           "name": "Slack account"
         }
-      }
+      },
+      "disabled": true
     },
     {
       "parameters": {
@@ -456,8 +457,7 @@
           "id": "1PPlFAPnbiUMnQUF",
           "name": "Slack account"
         }
-      },
-      "disabled": true
+      }
     },
     {
       "parameters": {
