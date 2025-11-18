@@ -13,7 +13,7 @@
       "name": "OpenAI Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "position": [
-        1840,
+        1832,
         688
       ],
       "typeVersion": 1.2,
@@ -202,6 +202,12 @@
               "id": "e43c5e7d-b79e-437a-bab0-44a98e32642e",
               "name": "pr_number",
               "value": "={{ $json.body.number }}",
+              "type": "string"
+            },
+            {
+              "id": "29d3e64c-117d-4583-8be5-f4d38b4df02d",
+              "name": "action",
+              "value": "={{ $json.body.action }}",
               "type": "string"
             }
           ]
@@ -428,8 +434,7 @@
           "id": "1PPlFAPnbiUMnQUF",
           "name": "Slack account"
         }
-      },
-      "disabled": true
+      }
     },
     {
       "parameters": {
@@ -457,7 +462,8 @@
           "id": "1PPlFAPnbiUMnQUF",
           "name": "Slack account"
         }
-      }
+      },
+      "disabled": true
     },
     {
       "parameters": {
@@ -693,8 +699,18 @@
           "conditions": [
             {
               "id": "b6b59238-e853-4358-9286-2f9de25d563b",
-              "leftValue": "={{ $('Repo Setting').first().json.state }}",
-              "rightValue": "open",
+              "leftValue": "={{ $('Repo Setting').first().json.action }}",
+              "rightValue": "opened",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            },
+            {
+              "id": "a38a9085-f1d6-47c2-945e-535ed34230da",
+              "leftValue": "={{ $('Repo Setting').first().json.action }}",
+              "rightValue": "synchronize",
               "operator": {
                 "type": "string",
                 "operation": "equals",
@@ -702,7 +718,7 @@
               }
             }
           ],
-          "combinator": "and"
+          "combinator": "or"
         },
         "options": {}
       },
@@ -713,7 +729,7 @@
         464
       ],
       "id": "95985d22-1498-4eb4-8b47-0664394f24f4",
-      "name": "Is PR Open?"
+      "name": "Should Review?"
     }
   ],
   "connections": {
@@ -844,7 +860,7 @@
         ],
         [
           {
-            "node": "Is PR Open?",
+            "node": "Should Review?",
             "type": "main",
             "index": 0
           }
@@ -965,7 +981,7 @@
         ]
       ]
     },
-    "Is PR Open?": {
+    "Should Review?": {
       "main": [
         [
           {
