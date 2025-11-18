@@ -222,7 +222,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -128,
+        96,
         240
       ],
       "id": "2f5a5107-c494-469e-add0-e8080db5a60c",
@@ -241,7 +241,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        96,
+        320,
         240
       ],
       "id": "b5c19670-9325-47c9-b673-b6dd3466fe23",
@@ -255,7 +255,7 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        -128,
+        96,
         432
       ],
       "id": "375f4cb4-b8d5-49f3-9d89-2431bc01227e",
@@ -268,7 +268,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        96,
+        320,
         432
       ],
       "id": "45025502-9bee-4a88-a7a3-2fa25bc7f930",
@@ -283,7 +283,7 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        -128,
+        96,
         624
       ],
       "id": "0804b680-b5a8-4fc7-a1b0-37b1eee082a9",
@@ -297,7 +297,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        96,
+        320,
         624
       ],
       "id": "ae1291a7-790c-456b-a001-d30e9d2d2acb",
@@ -316,7 +316,7 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        320,
+        544,
         272
       ],
       "id": "4a4b6e8f-ec50-45c9-ab9a-2a497343b514",
@@ -329,7 +329,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        544,
+        768,
         336
       ],
       "id": "0d86a5dc-5404-444f-9e03-e22448dbb42b",
@@ -343,7 +343,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        96,
+        320,
         -144
       ],
       "id": "ca0a00e2-562b-498e-8c66-3ea343c6954b",
@@ -357,7 +357,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        96,
+        320,
         48
       ],
       "id": "43fd8155-541a-44a3-93c4-17cefe36313b",
@@ -467,7 +467,7 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        -128,
+        96,
         -144
       ],
       "id": "067e42de-2f0f-492f-a299-3eb3de925891",
@@ -483,7 +483,7 @@
     },
     {
       "parameters": {
-        "url": "=https://api.github.com/repos/{{ $json.owner.login }}/{{ $json.name }}/commits",
+        "url": "={{ $json.commit.url.replace(/\\/[^/]+$/, '') }}",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "githubApi",
         "sendQuery": true,
@@ -496,6 +496,10 @@
             {
               "name": "per_page",
               "value": "100"
+            },
+            {
+              "name": "sha",
+              "value": "={{ $json.commit.sha }}"
             }
           ]
         },
@@ -504,11 +508,12 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -352,
+        -128,
         144
       ],
       "id": "b37392f7-0a62-486c-b80d-4e496cc654b3",
       "name": "Get Commits (Days)",
+      "executeOnce": false,
       "credentials": {
         "githubApi": {
           "id": "SEYz6E5AQBY7Meoc",
@@ -544,7 +549,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -352,
+        -128,
         432
       ],
       "id": "fd7a1fe8-45e9-44bb-ba3d-6879fc60d3da",
@@ -584,7 +589,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -352,
+        -128,
         624
       ],
       "id": "f8b24f3c-c559-4a45-8984-e530ba108997",
@@ -603,7 +608,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        768,
+        992,
         336
       ],
       "id": "65b0eabf-132b-4566-b5e8-07cfd528fa78",
@@ -616,7 +621,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        992,
+        1216,
         336
       ],
       "id": "65f12c53-ac02-43b6-adbd-78b480a9f4d8",
@@ -637,7 +642,7 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1216,
+        1440,
         240
       ],
       "id": "8c0c0161-7ad6-4b46-801e-11dd2753cc02",
@@ -665,7 +670,7 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1216,
+        1440,
         432
       ],
       "id": "1a7bb08e-41e1-488c-8098-2c81dc2e6730",
@@ -706,7 +711,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -352,
+        -128,
         816
       ],
       "id": "59668d2a-90b3-4543-9461-c4734f496219",
@@ -726,7 +731,7 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        -128,
+        96,
         816
       ],
       "id": "2fbc8d43-4494-48f3-813b-e86a6be1c475",
@@ -739,11 +744,43 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        96,
+        320,
         816
       ],
       "id": "ae272697-19d9-478d-82de-e70c18ddd1e4",
       "name": "Stats"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $json.owner.login }}/{{ $json.name }}/branches",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -352,
+        144
+      ],
+      "id": "9cd4c2a3-fb0b-4644-9be2-da89bb59eabb",
+      "name": "Get Branches",
+      "credentials": {
+        "githubApi": {
+          "id": "SEYz6E5AQBY7Meoc",
+          "name": "GitHub account"
+        }
+      },
+      "onError": "continueErrorOutput"
     }
   ],
   "connections": {
@@ -843,12 +880,12 @@
       "main": [
         [
           {
-            "node": "Get Commits (Days)",
+            "node": "Get All Pull requests",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Get All Pull requests",
+            "node": "Get Branches",
             "type": "main",
             "index": 0
           }
@@ -1114,6 +1151,17 @@
             "node": "Merge",
             "type": "main",
             "index": 5
+          }
+        ]
+      ]
+    },
+    "Get Branches": {
+      "main": [
+        [
+          {
+            "node": "Get Commits (Days)",
+            "type": "main",
+            "index": 0
           }
         ]
       ]
