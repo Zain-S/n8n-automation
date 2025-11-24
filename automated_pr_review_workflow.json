@@ -13,7 +13,7 @@
       "name": "OpenAI Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "position": [
-        1832,
+        1840,
         688
       ],
       "typeVersion": 1.2,
