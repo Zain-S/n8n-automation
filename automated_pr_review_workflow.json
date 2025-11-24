@@ -13,8 +13,8 @@
       "name": "OpenAI Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "position": [
-        1840,
-        688
+        1384,
+        400
       ],
       "typeVersion": 1.2,
       "credentials": {
@@ -35,8 +35,8 @@
       "name": "Get file's Diffs from PR",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        1312,
-        464
+        864,
+        176
       ],
       "typeVersion": 4.2,
       "credentials": {
@@ -54,8 +54,8 @@
       "name": "Create target Prompt from PR Diffs",
       "type": "n8n-nodes-base.code",
       "position": [
-        1536,
-        464
+        1088,
+        176
       ],
       "typeVersion": 2
     },
@@ -81,8 +81,8 @@
       "name": "GitHub Robot",
       "type": "n8n-nodes-base.github",
       "position": [
-        2112,
-        464
+        1664,
+        176
       ],
       "webhookId": "39c2fe8b-f686-4699-8450-2a5b4c263d93",
       "typeVersion": 1.1,
@@ -119,8 +119,8 @@
       "name": "Add Label to PR",
       "type": "n8n-nodes-base.github",
       "position": [
-        2336,
-        464
+        1888,
+        176
       ],
       "webhookId": "c98f39f1-603b-4013-9149-53b4cc31b611",
       "typeVersion": 1,
@@ -141,8 +141,8 @@
       "name": "Code Review Agent",
       "type": "@n8n/n8n-nodes-langchain.agent",
       "position": [
-        1760,
-        464
+        1312,
+        176
       ],
       "typeVersion": 1.9
     },
@@ -217,8 +217,8 @@
       "type": "n8n-nodes-base.set",
       "typeVersion": 3.4,
       "position": [
-        -32,
-        320
+        -480,
+        32
       ],
       "id": "f0111dd9-0c4e-4de1-a5bc-4e115fe639f3",
       "name": "Repo Setting"
@@ -230,8 +230,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2560,
-        464
+        2112,
+        176
       ],
       "id": "f3b73210-ef66-4bff-abb7-30634c977b34",
       "name": "Format Data for Slack"
@@ -245,8 +245,8 @@
       "name": "Commit Message Breakdown",
       "type": "n8n-nodes-base.code",
       "position": [
-        640,
-        320
+        192,
+        32
       ],
       "typeVersion": 2,
       "onError": "continueRegularOutput"
@@ -258,8 +258,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        416,
-        320
+        -32,
+        32
       ],
       "id": "08c6c416-cb3a-43ec-b91d-3f90326ff284",
       "name": "Get Current User"
@@ -302,8 +302,8 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        864,
-        320
+        416,
+        32
       ],
       "id": "3f41533e-7885-4407-a2e5-99aab1b52070",
       "name": "Is Merge?"
@@ -325,8 +325,8 @@
       "name": "Update task status",
       "type": "n8n-nodes-base.jira",
       "position": [
-        2336,
-        176
+        1888,
+        -112
       ],
       "typeVersion": 1,
       "credentials": {
@@ -348,8 +348,8 @@
       "name": "Get task details for PR",
       "type": "n8n-nodes-base.jira",
       "position": [
-        2112,
-        176
+        1664,
+        -112
       ],
       "typeVersion": 1,
       "alwaysOutputData": false,
@@ -367,8 +367,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        2560,
-        176
+        2112,
+        -112
       ],
       "id": "bb17dead-b2d6-4181-83bd-9342219b0092",
       "name": "Updated Status Message"
@@ -395,8 +395,8 @@
       "type": "n8n-nodes-base.googleSheets",
       "typeVersion": 4.7,
       "position": [
-        192,
-        320
+        -256,
+        32
       ],
       "id": "e7d80614-0918-4ebd-96d4-371216f8d325",
       "name": "Get Users",
@@ -424,8 +424,8 @@
       "name": "Send message in channel",
       "type": "n8n-nodes-base.slack",
       "position": [
-        2784,
-        224
+        2336,
+        -64
       ],
       "webhookId": "{YOUR_SLACK_WEBHOOK_ID}",
       "typeVersion": 2.3,
@@ -451,8 +451,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        2784,
-        416
+        2336,
+        128
       ],
       "id": "bf6bb07d-d0ad-4af0-ae6a-eb7a24ca44df",
       "name": "Send message (Personal Testing)",
@@ -480,15 +480,15 @@
       "name": "Register Github Webhook",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        464,
-        -384
+        192,
+        -528
       ],
       "typeVersion": 4.2,
       "executeOnce": false,
       "credentials": {
         "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
+          "id": "CVoOKEnLUibLHED8",
+          "name": "GitHub bdata"
         }
       },
       "disabled": true,
@@ -506,8 +506,8 @@
       "name": "Delete Github Webhook",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        480,
-        -48
+        416,
+        -336
       ],
       "typeVersion": 4.2,
       "credentials": {
@@ -520,36 +520,6 @@
     },
     {
       "parameters": {
-        "content": "## Delete All Webhooks",
-        "height": 279.85434264975174,
-        "width": 858.0344141951173
-      },
-      "id": "3244f191-eced-4914-8e9e-09621f7a9787",
-      "name": "Sticky Note4",
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -240,
-        -112
-      ],
-      "typeVersion": 1
-    },
-    {
-      "parameters": {
-        "content": "## Register Webhooks",
-        "height": 283.2561904154995,
-        "width": 848.6550531504272
-      },
-      "id": "9ee67211-db6c-4ccc-9e59-e0d468e49170",
-      "name": "Sticky Note5",
-      "type": "n8n-nodes-base.stickyNote",
-      "position": [
-        -240,
-        -464
-      ],
-      "typeVersion": 1
-    },
-    {
-      "parameters": {
         "url": "=https://api.github.com/repos/{{ $json.owner.login }}/{{ $json.name }}/hooks",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "githubApi",
@@ -559,88 +529,29 @@
       "name": "Get Existing Hook",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        144,
-        -32
+        192,
+        -336
       ],
       "typeVersion": 4.2,
       "alwaysOutputData": false,
       "credentials": {
         "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
+          "id": "CVoOKEnLUibLHED8",
+          "name": "GitHub bdata"
         }
       },
       "onError": "continueErrorOutput"
-    },
-    {
-      "parameters": {
-        "url": "https://api.github.com/user/orgs",
-        "authentication": "predefinedCredentialType",
-        "nodeCredentialType": "githubApi",
-        "sendQuery": true,
-        "queryParameters": {
-          "parameters": [
-            {
-              "name": "per_page",
-              "value": "100"
-            }
-          ]
-        },
-        "options": {}
-      },
-      "type": "n8n-nodes-base.httpRequest",
-      "typeVersion": 4.3,
-      "position": [
-        16,
-        -384
-      ],
-      "id": "5561a588-58f4-467c-a97a-944b5c19b857",
-      "name": "Get Organizations",
-      "executeOnce": false,
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
     },
     {
       "parameters": {},
       "type": "n8n-nodes-base.manualTrigger",
       "typeVersion": 1,
       "position": [
-        -176,
-        -384
+        -704,
+        -528
       ],
       "id": "26cedb76-fd20-44ed-9285-a7a14e74d3c8",
       "name": "Click to Execute"
-    },
-    {
-      "parameters": {
-        "resource": "organization",
-        "owner": {
-          "__rl": true,
-          "value": "={{ $json.login }}",
-          "mode": "name"
-        },
-        "returnAll": true
-      },
-      "type": "n8n-nodes-base.github",
-      "typeVersion": 1.1,
-      "position": [
-        224,
-        -384
-      ],
-      "id": "33c9d9fa-7b77-48fd-adb4-9e87f290b951",
-      "name": "Get Repositories",
-      "webhookId": "d343075a-1316-446f-bbd2-a63812de4e5f",
-      "executeOnce": false,
-      "credentials": {
-        "githubApi": {
-          "id": "SEYz6E5AQBY7Meoc",
-          "name": "GitHub account"
-        }
-      }
     },
     {
       "parameters": {
@@ -651,8 +562,8 @@
       "type": "n8n-nodes-base.webhook",
       "typeVersion": 2.1,
       "position": [
-        -256,
-        320
+        -704,
+        32
       ],
       "id": "a7e0a5b5-e62b-4963-8b12-ab34198e6455",
       "name": "PR Events Webhook",
@@ -673,7 +584,7 @@
       "name": "Register Test Github Webhook",
       "type": "n8n-nodes-base.httpRequest",
       "position": [
-        464,
+        -32,
         -672
       ],
       "typeVersion": 4.2,
@@ -725,11 +636,143 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.2,
       "position": [
-        1088,
-        464
+        640,
+        176
       ],
       "id": "95985d22-1498-4eb4-8b47-0664394f24f4",
       "name": "Should Review?"
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/user/orgs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -480,
+        -624
+      ],
+      "id": "5561a588-58f4-467c-a97a-944b5c19b857",
+      "name": "Get Organizations (techvention)",
+      "executeOnce": false,
+      "credentials": {
+        "githubApi": {
+          "id": "SEYz6E5AQBY7Meoc",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/user/orgs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -480,
+        -384
+      ],
+      "id": "ad4a0880-43de-4f3b-a6be-0507908a0900",
+      "name": "Get Organizations (bdata)",
+      "executeOnce": false,
+      "credentials": {
+        "githubApi": {
+          "id": "CVoOKEnLUibLHED8",
+          "name": "GitHub bdata"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "organization",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $json.login }}",
+          "mode": "name"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -256,
+        -624
+      ],
+      "id": "33c9d9fa-7b77-48fd-adb4-9e87f290b951",
+      "name": "Get Repositories (tecvention)",
+      "webhookId": "d343075a-1316-446f-bbd2-a63812de4e5f",
+      "executeOnce": false,
+      "credentials": {
+        "githubApi": {
+          "id": "SEYz6E5AQBY7Meoc",
+          "name": "GitHub account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "organization",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $json.login }}",
+          "mode": "name"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -256,
+        -384
+      ],
+      "id": "01d55a80-be7c-4c62-afa7-c04533e0ba90",
+      "name": "Get Repositories (bdata)",
+      "webhookId": "d343075a-1316-446f-bbd2-a63812de4e5f",
+      "executeOnce": false,
+      "credentials": {
+        "githubApi": {
+          "id": "CVoOKEnLUibLHED8",
+          "name": "GitHub bdata"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "chooseBranch",
+        "useDataOfInput": 2
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -32,
+        -432
+      ],
+      "id": "a21c2b33-159c-48a1-8089-815c7c0b084b",
+      "name": "Merge"
     }
   ],
   "connections": {
@@ -927,43 +970,16 @@
         ]
       ]
     },
-    "Get Organizations": {
-      "main": [
-        [
-          {
-            "node": "Get Repositories",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Click to Execute": {
       "main": [
         [
           {
-            "node": "Get Organizations",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Get Repositories": {
-      "main": [
-        [
-          {
-            "node": "Register Github Webhook",
+            "node": "Get Organizations (techvention)",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Get Existing Hook",
-            "type": "main",
-            "index": 0
-          },
-          {
-            "node": "Register Test Github Webhook",
+            "node": "Get Organizations (bdata)",
             "type": "main",
             "index": 0
           }
@@ -986,6 +1002,71 @@
         [
           {
             "node": "Get file's Diffs from PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Organizations (techvention)": {
+      "main": [
+        [
+          {
+            "node": "Get Repositories (tecvention)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Organizations (bdata)": {
+      "main": [
+        [
+          {
+            "node": "Get Repositories (bdata)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Repositories (tecvention)": {
+      "main": [
+        [
+          {
+            "node": "Register Test Github Webhook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Repositories (bdata)": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Get Existing Hook",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Register Github Webhook",
             "type": "main",
             "index": 0
           }
