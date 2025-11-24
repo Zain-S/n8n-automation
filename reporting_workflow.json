@@ -14,7 +14,7 @@
       "typeVersion": 1.2,
       "position": [
         -2144,
-        336
+        352
       ],
       "id": "c10287af-7c2e-4566-b536-c7e38893c06b",
       "name": "Daily Report"
@@ -33,7 +33,7 @@
       "typeVersion": 1.2,
       "position": [
         -2144,
-        720
+        736
       ],
       "id": "f5d773d6-8938-441a-aba9-3dd0a119d24b",
       "name": "Monthly Report"
@@ -56,7 +56,7 @@
       "typeVersion": 1.2,
       "position": [
         -2144,
-        528
+        544
       ],
       "id": "9841dce2-9329-447f-8555-9c1e111c8a5c",
       "name": "Weekly Report"
@@ -84,7 +84,7 @@
       "typeVersion": 4.7,
       "position": [
         -1024,
-        528
+        544
       ],
       "id": "de47dd01-6dcc-46ac-8972-2bf7ef313a26",
       "name": "Get Users",
@@ -114,7 +114,7 @@
       "typeVersion": 3.4,
       "position": [
         -1248,
-        528
+        544
       ],
       "id": "acf1f15a-a9d7-4399-a5d2-9507b9b33966",
       "name": "Set Base Configuration",
@@ -142,7 +142,7 @@
       "typeVersion": 4.7,
       "position": [
         -1472,
-        528
+        544
       ],
       "id": "4f291be3-ea83-48be-b3df-eb3baa6775a3",
       "name": "Get Base Configuration",
@@ -173,7 +173,7 @@
       "typeVersion": 4.3,
       "position": [
         -800,
-        48
+        -64
       ],
       "id": "b265a7b2-db52-45b7-ab63-e7f0ef3093e9",
       "name": "Get Organizations",
@@ -199,7 +199,7 @@
       "typeVersion": 1.1,
       "position": [
         -576,
-        48
+        -64
       ],
       "id": "31edc266-8e00-43ef-815c-3ce28a05ef92",
       "name": "Get Repositories",
@@ -223,7 +223,7 @@
       "typeVersion": 4.3,
       "position": [
         96,
-        240
+        80
       ],
       "id": "2f5a5107-c494-469e-add0-e8080db5a60c",
       "name": "Get Commit Details",
@@ -236,13 +236,13 @@
     },
     {
       "parameters": {
-        "jsCode": "const commits = $input.all();\n\n// Create an object to store the counts\n/** @type {{ [key: string]: { user: object, additions: number, deletions: number, total: number } }} */\nlet lineChanges = {};\n\n// Group and count commits by username\ncommits.forEach(commit => {\n  const user = commit.json.author; // Save the complete user object\n  const username = user.login; // Username for grouping\n  const additions = commit.json.stats.additions || 0;\n  const deletions = commit.json.stats.deletions || 0;\n  const totalChanges = additions + deletions;\n\n  // If the user is already in the report, update their line change counts\n  if (lineChanges[username]) {\n    lineChanges[username].additions += additions;\n    lineChanges[username].deletions += deletions;\n    lineChanges[username].total += totalChanges;\n  } else {\n    lineChanges[username] = {\n      user,\n      additions,\n      deletions,\n      total: totalChanges\n    };\n  }\n});\n\n// Convert the result into an array of objects with username and commit count\nconst result = Object.keys(lineChanges).map(username => ({\n  user: lineChanges[username].user, // Include the complete user object\n  stats: {\n    additions: lineChanges[username].additions,\n    deletions: lineChanges[username].deletions,\n    total: lineChanges[username].total\n  } // Include additions, deletions, and total\n}));\n\n// Return the final report in n8n format\nreturn { json: { line_changes_report: result } };"
+        "jsCode": "const commits = $input.all();\n\n// Create an object to store the counts\n/** @type {{ [key: string]: { user: object, additions: number, deletions: number, total: number } }} */\nlet lineChanges = {};\n\n// Group and count commits by username\ncommits.forEach(commit => {\n  const user = commit.json.author; // Save the complete user object\n  const username = user?.login || user?.name; // Username for grouping\n  const additions = commit.json.stats.additions || 0;\n  const deletions = commit.json.stats.deletions || 0;\n  const totalChanges = additions + deletions;\n\n  // If the user is already in the report, update their line change counts\n  if (lineChanges[username]) {\n    lineChanges[username].additions += additions;\n    lineChanges[username].deletions += deletions;\n    lineChanges[username].total += totalChanges;\n  } else {\n    lineChanges[username] = {\n      user,\n      additions,\n      deletions,\n      total: totalChanges\n    };\n  }\n});\n\n// Convert the result into an array of objects with username and commit count\nconst result = Object.keys(lineChanges).map(username => ({\n  user: lineChanges[username].user, // Include the complete user object\n  stats: {\n    additions: lineChanges[username].additions,\n    deletions: lineChanges[username].deletions,\n    total: lineChanges[username].total\n  } // Include additions, deletions, and total\n}));\n\n// Return the final report in n8n format\nreturn { json: { line_changes_report: result } };"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        320,
-        240
+        544,
+        -288
       ],
       "id": "b5c19670-9325-47c9-b673-b6dd3466fe23",
       "name": "Line Changes Count"
@@ -255,8 +255,8 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        96,
-        432
+        -352,
+        544
       ],
       "id": "375f4cb4-b8d5-49f3-9d89-2431bc01227e",
       "name": "Split Out"
@@ -268,8 +268,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        320,
-        432
+        -128,
+        544
       ],
       "id": "45025502-9bee-4a88-a7a3-2fa25bc7f930",
       "name": "Done Tasks",
@@ -283,8 +283,8 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        96,
-        624
+        -352,
+        736
       ],
       "id": "0804b680-b5a8-4fc7-a1b0-37b1eee082a9",
       "name": "Split Out Bugs",
@@ -297,8 +297,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        320,
-        624
+        -128,
+        736
       ],
       "id": "ae1291a7-790c-456b-a001-d30e9d2d2acb",
       "name": "Bugs",
@@ -316,8 +316,8 @@
       "type": "n8n-nodes-base.merge",
       "typeVersion": 3.2,
       "position": [
-        544,
-        272
+        768,
+        256
       ],
       "id": "4a4b6e8f-ec50-45c9-ab9a-2a497343b514",
       "name": "Merge"
@@ -329,8 +329,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        768,
-        336
+        992,
+        320
       ],
       "id": "0d86a5dc-5404-444f-9e03-e22448dbb42b",
       "name": "Final Report",
@@ -343,8 +343,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        320,
-        -144
+        96,
+        -544
       ],
       "id": "ca0a00e2-562b-498e-8c66-3ea343c6954b",
       "name": "PR Report",
@@ -358,7 +358,7 @@
       "typeVersion": 2,
       "position": [
         320,
-        48
+        -48
       ],
       "id": "43fd8155-541a-44a3-93c4-17cefe36313b",
       "name": "Commit Report"
@@ -381,7 +381,7 @@
       "typeVersion": 3.4,
       "position": [
         -1920,
-        336
+        352
       ],
       "id": "ec121991-e5a9-43b0-b667-8c69952bcfcb",
       "name": "Set Daily Type"
@@ -404,7 +404,7 @@
       "typeVersion": 3.4,
       "position": [
         -1920,
-        720
+        736
       ],
       "id": "e9c4d1eb-bdc0-40aa-949b-5354ca8df136",
       "name": "Set Monthly Type"
@@ -427,7 +427,7 @@
       "typeVersion": 3.4,
       "position": [
         -1920,
-        528
+        544
       ],
       "id": "e0fa5ba8-3926-4c51-aa32-f1df2b2ca7f2",
       "name": "Set Weekly Type"
@@ -440,7 +440,7 @@
       "typeVersion": 2,
       "position": [
         -1696,
-        528
+        544
       ],
       "id": "e1afb694-bba1-49d4-9f19-e748ae5b4b1b",
       "name": "Set Days"
@@ -467,8 +467,8 @@
       "type": "n8n-nodes-base.github",
       "typeVersion": 1.1,
       "position": [
-        96,
-        -144
+        -352,
+        -256
       ],
       "id": "067e42de-2f0f-492f-a299-3eb3de925891",
       "name": "Get All Pull requests",
@@ -509,7 +509,7 @@
       "typeVersion": 4.3,
       "position": [
         -128,
-        144
+        32
       ],
       "id": "b37392f7-0a62-486c-b80d-4e496cc654b3",
       "name": "Get Commits (Days)",
@@ -549,8 +549,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -128,
-        432
+        -800,
+        832
       ],
       "id": "fd7a1fe8-45e9-44bb-ba3d-6879fc60d3da",
       "name": "Get Done Issues (Days)",
@@ -589,8 +589,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -128,
-        624
+        -800,
+        1024
       ],
       "id": "f8b24f3c-c559-4a45-8984-e530ba108997",
       "name": "Get Bugs (Days)",
@@ -603,13 +603,13 @@
     },
     {
       "parameters": {
-        "jsCode": "// === Input data ===\nconst mapping = $(\"Get Users\").all(); // from Google Sheets node\nconst githubReport = $input.first().json.githubReport; // GitHub report array\nconst jiraReport = $input.first().json.jiraReport; // Jira report array\n\n// === Helper: Find user safely ===\nfunction findGithub(username) {\n  return githubReport.find(u => u.user?.login?.toLowerCase() === username.toLowerCase());\n}\n\nfunction findJira(accountId) {\n  return jiraReport.find(u =>\n    u.user?.accountId === accountId\n  );\n}\n\n// === Final merged report ===\nconst finalReport = mapping.map(user => {\n  const gh = findGithub(user.json.Github_UserName);\n  const jr = findJira(user.json.Jira_User_Id);\n\n  return {\n    Name: user.json.Name,\n    Github_UserName: user.json.Github_UserName,\n    Jira_User_Id: user.json.Jira_User_Id,\n    Slack_User_id: user.json.Slack_User_id || \"\",\n    prs: gh?.prs || 0,\n    commits: gh?.commits || 0,\n    additions: gh?.stats?.additions || 0,\n    deletions: gh?.stats?.deletions || 0,\n    total: gh?.stats?.total || 0,\n    doneTasks: jr?.doneTasks || 0,\n    bugs: jr?.bugTasks || 0,\n    statusCounts: Object.entries(jr.statusCounts)\n  .map(([key, value]) => `${key}: ${value}`)\n  .join(\", \")\n  };\n});\n\n// === Return for next node ===\nreturn finalReport.map(r => ({ json: r }));\n"
+        "jsCode": "// === Input data ===\nconst mapping = $(\"Get Users\").all(); // from Google Sheets node\nconst githubReport = $input.first().json.githubReport; // GitHub report array\nconst jiraReport = $input.first().json.jiraReport; // Jira report array\n\n// === Helper: Find user safely ===\nfunction findGithub(username) {\n  return githubReport.find(u => u.user?.login?.toLowerCase() === username.toLowerCase());\n}\n\nfunction findJira(accountId) {\n  return jiraReport.find(u =>\n    u.user?.accountId === accountId\n  );\n}\n\n// === Final merged report ===\nconst finalReport = mapping.map(user => {\n  const gh = findGithub(user.json.Github_UserName);\n  const jr = findJira(user.json.Jira_User_Id);\n\n  return {\n    Name: user.json.Name,\n    Github_UserName: user.json.Github_UserName,\n    Jira_User_Id: user.json.Jira_User_Id,\n    Slack_User_id: user.json.Slack_User_id || \"\",\n    prs: gh?.prs || 0,\n    commits: gh?.commits || 0,\n    additions: gh?.stats?.additions || 0,\n    deletions: gh?.stats?.deletions || 0,\n    total: gh?.stats?.total || 0,\n    doneTasks: jr?.doneTasks || 0,\n    bugs: jr?.bugTasks || 0,\n    statusCounts: Object.entries(jr?.statusCounts || '')\n  .map(([key, value]) => `${key}: ${value}`)\n  .join(\", \")\n  };\n});\n\n// === Return for next node ===\nreturn finalReport.map(r => ({ json: r }));\n"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        992,
-        336
+        1216,
+        320
       ],
       "id": "65b0eabf-132b-4566-b5e8-07cfd528fa78",
       "name": "Mapping"
@@ -621,8 +621,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        1216,
-        336
+        1440,
+        320
       ],
       "id": "65f12c53-ac02-43b6-adbd-78b480a9f4d8",
       "name": "Message Creation"
@@ -642,8 +642,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1440,
-        240
+        1664,
+        224
       ],
       "id": "8c0c0161-7ad6-4b46-801e-11dd2753cc02",
       "name": "Send message in channel",
@@ -670,8 +670,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        1440,
-        432
+        1664,
+        416
       ],
       "id": "1a7bb08e-41e1-488c-8098-2c81dc2e6730",
       "name": "Send personal message",
@@ -711,8 +711,8 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.3,
       "position": [
-        -128,
-        816
+        -800,
+        1216
       ],
       "id": "59668d2a-90b3-4543-9461-c4734f496219",
       "name": "Get Stats",
@@ -731,8 +731,8 @@
       "type": "n8n-nodes-base.splitOut",
       "typeVersion": 1,
       "position": [
-        96,
-        816
+        -352,
+        928
       ],
       "id": "2fbc8d43-4494-48f3-813b-e86a6be1c475",
       "name": "Split Out1"
@@ -744,8 +744,8 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        320,
-        816
+        -128,
+        928
       ],
       "id": "ae272697-19d9-478d-82de-e70c18ddd1e4",
       "name": "Stats"
@@ -770,7 +770,7 @@
       "typeVersion": 4.3,
       "position": [
         -352,
-        144
+        32
       ],
       "id": "9cd4c2a3-fb0b-4644-9be2-da89bb59eabb",
       "name": "Get Branches",
@@ -781,6 +781,380 @@
         }
       },
       "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "https://api.github.com/user/orgs",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -800,
+        -544
+      ],
+      "id": "7a00c317-9771-4517-9543-775dd44f057f",
+      "name": "Get Organizations (bdata)",
+      "executeOnce": true,
+      "credentials": {
+        "githubApi": {
+          "id": "CVoOKEnLUibLHED8",
+          "name": "GitHub bdata"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "organization",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $json.login }}",
+          "mode": "name"
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -576,
+        -544
+      ],
+      "id": "3d9a6715-76f6-4b5a-8ac4-660bb2fbe670",
+      "name": "Get Repositories (bdata)",
+      "webhookId": "d343075a-1316-446f-bbd2-a63812de4e5f",
+      "executeOnce": false,
+      "credentials": {
+        "githubApi": {
+          "id": "CVoOKEnLUibLHED8",
+          "name": "GitHub bdata"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "repository",
+        "operation": "getPullRequests",
+        "owner": {
+          "__rl": true,
+          "value": "={{ $('Set Base Configuration').item.json.GITHUB_ORGANIZATION }}",
+          "mode": "name"
+        },
+        "repository": {
+          "__rl": true,
+          "value": "={{ $json.name }}",
+          "mode": "name"
+        },
+        "returnAll": true,
+        "getRepositoryPullRequestsFilters": {
+          "state": "all"
+        }
+      },
+      "type": "n8n-nodes-base.github",
+      "typeVersion": 1.1,
+      "position": [
+        -352,
+        -688
+      ],
+      "id": "eed240c7-d256-4dc3-83a7-011cb86f7305",
+      "name": "Get All Pull requests (bdata)",
+      "webhookId": "9e9eaa17-a072-400b-ab1d-cd84b5250398",
+      "credentials": {
+        "githubApi": {
+          "id": "CVoOKEnLUibLHED8",
+          "name": "GitHub bdata"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $json.owner.login }}/{{ $json.name }}/branches",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -352,
+        -448
+      ],
+      "id": "4981f9f8-1bf6-4e0c-8b83-1e761fb1f206",
+      "name": "Get Branches (bdata)",
+      "credentials": {
+        "githubApi": {
+          "id": "CVoOKEnLUibLHED8",
+          "name": "GitHub bdata"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.commit.url.replace(/\\/[^/]+$/, '') }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "since",
+              "value": "={{ $('Set Days').item.json.startDate }}"
+            },
+            {
+              "name": "per_page",
+              "value": "100"
+            },
+            {
+              "name": "sha",
+              "value": "={{ $json.commit.sha }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -128,
+        -304
+      ],
+      "id": "460de05a-cc80-49db-83f5-011ab90ff331",
+      "name": "Get Commits (Days) (bdata)",
+      "executeOnce": false,
+      "credentials": {
+        "githubApi": {
+          "id": "CVoOKEnLUibLHED8",
+          "name": "GitHub bdata"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "url": "={{ $input.item.json.url }}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "githubApi",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        96,
+        -352
+      ],
+      "id": "fc41918f-df72-46ce-b19a-45c7fbe53091",
+      "name": "Get Commit Details (bdata)",
+      "credentials": {
+        "githubApi": {
+          "id": "CVoOKEnLUibLHED8",
+          "name": "GitHub bdata"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://techvention-new.atlassian.net/rest/api/3/search/jql",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "jql",
+              "value": "=status changed TO \"Done\" DURING (-{{$('Set Days').item.json.days}}d, now())"
+            },
+            {
+              "name": "fields",
+              "value": "assignee, summary, status"
+            },
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -800,
+        256
+      ],
+      "id": "4be7e4bc-f18e-423d-be2c-5c5364ad1c21",
+      "name": "Get Done Issues (Days) (bdata)",
+      "retryOnFail": true,
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "uH7TXOY98nQ18Tab",
+          "name": "Jira SW Cloud bdata"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://techvention-new.atlassian.net/rest/api/3/search/jql",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "jql",
+              "value": "=issuetype = \"Bug\" AND created >= -{{$('Set Days').item.json.days}}d"
+            },
+            {
+              "name": "fields",
+              "value": "assignee, summary, status"
+            },
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -800,
+        448
+      ],
+      "id": "5169597b-65f3-422a-945e-0ba37af5c426",
+      "name": "Get Bugs (Days) (bdata)",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "uH7TXOY98nQ18Tab",
+          "name": "Jira SW Cloud bdata"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://techvention-new.atlassian.net/rest/api/3/search/jql",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "jiraSoftwareCloudApi",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "jql",
+              "value": "=assignee = {{ $json.Jira_User_Id }}"
+            },
+            {
+              "name": "fields",
+              "value": "assignee, summary, status"
+            },
+            {
+              "name": "per_page",
+              "value": "100"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
+      "position": [
+        -800,
+        640
+      ],
+      "id": "94df740b-6899-493a-a3db-70cc7408cd2f",
+      "name": "Get Stats (bdata)",
+      "credentials": {
+        "jiraSoftwareCloudApi": {
+          "id": "uH7TXOY98nQ18Tab",
+          "name": "Jira SW Cloud bdata"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -128,
+        -544
+      ],
+      "id": "d7dc82dd-4986-4274-89d4-082a8e22b6fe",
+      "name": "Merge Pull Requests"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        320,
+        -288
+      ],
+      "id": "f11ab2e5-99db-4c92-8a43-a33c00cc50f5",
+      "name": "Merge Commit Details"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        96,
+        -112
+      ],
+      "id": "39bd9fc2-af1c-412f-ba60-c613076d9f85",
+      "name": "Merge Commits (days)"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -576,
+        544
+      ],
+      "id": "ba4c7b76-28e5-449c-87be-1b102a830f65",
+      "name": "Merge Done Issues (days)"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -576,
+        736
+      ],
+      "id": "582685f3-1682-472e-8aa7-13cb828ba8f0",
+      "name": "Merge Bugs (Days)"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        -576,
+        928
+      ],
+      "id": "de3f45d1-1dac-40e9-8e50-4ae86c7aaedf",
+      "name": "Merge Stats"
     }
   ],
   "connections": {
@@ -821,12 +1195,32 @@
       "main": [
         [
           {
-            "node": "Get Done Issues (Days)",
+            "node": "Get Organizations (bdata)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Done Issues (Days) (bdata)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Bugs (Days) (bdata)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Stats (bdata)",
             "type": "main",
             "index": 0
           },
           {
             "node": "Get Organizations",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Done Issues (Days)",
             "type": "main",
             "index": 0
           },
@@ -896,9 +1290,9 @@
       "main": [
         [
           {
-            "node": "Line Changes Count",
+            "node": "Merge Commit Details",
             "type": "main",
-            "index": 0
+            "index": 1
           }
         ]
       ]
@@ -1050,9 +1444,9 @@
       "main": [
         [
           {
-            "node": "PR Report",
+            "node": "Merge Pull Requests",
             "type": "main",
-            "index": 0
+            "index": 1
           }
         ]
       ]
@@ -1066,9 +1460,9 @@
             "index": 0
           },
           {
-            "node": "Commit Report",
+            "node": "Merge Commits (days)",
             "type": "main",
-            "index": 0
+            "index": 1
           }
         ]
       ]
@@ -1077,9 +1471,9 @@
       "main": [
         [
           {
-            "node": "Split Out",
+            "node": "Merge Done Issues (days)",
             "type": "main",
-            "index": 0
+            "index": 1
           }
         ]
       ]
@@ -1088,9 +1482,9 @@
       "main": [
         [
           {
-            "node": "Split Out Bugs",
+            "node": "Merge Bugs (Days)",
             "type": "main",
-            "index": 0
+            "index": 1
           }
         ]
       ]
@@ -1126,9 +1520,9 @@
       "main": [
         [
           {
-            "node": "Split Out1",
+            "node": "Merge Stats",
             "type": "main",
-            "index": 0
+            "index": 1
           }
         ]
       ]
@@ -1160,6 +1554,184 @@
         [
           {
             "node": "Get Commits (Days)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Get Organizations (bdata)": {
+      "main": [
+        [
+          {
+            "node": "Get Repositories (bdata)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Repositories (bdata)": {
+      "main": [
+        [
+          {
+            "node": "Get All Pull requests (bdata)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get Branches (bdata)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All Pull requests (bdata)": {
+      "main": [
+        [
+          {
+            "node": "Merge Pull Requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Branches (bdata)": {
+      "main": [
+        [
+          {
+            "node": "Get Commits (Days) (bdata)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Get Commits (Days) (bdata)": {
+      "main": [
+        [
+          {
+            "node": "Get Commit Details (bdata)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Commits (days)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Get Commit Details (bdata)": {
+      "main": [
+        [
+          {
+            "node": "Merge Commit Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Done Issues (Days) (bdata)": {
+      "main": [
+        [
+          {
+            "node": "Merge Done Issues (days)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Bugs (Days) (bdata)": {
+      "main": [
+        [
+          {
+            "node": "Merge Bugs (Days)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Stats (bdata)": {
+      "main": [
+        [
+          {
+            "node": "Merge Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Pull Requests": {
+      "main": [
+        [
+          {
+            "node": "PR Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Commit Details": {
+      "main": [
+        [
+          {
+            "node": "Line Changes Count",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Commits (days)": {
+      "main": [
+        [
+          {
+            "node": "Commit Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Done Issues (days)": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Bugs (Days)": {
+      "main": [
+        [
+          {
+            "node": "Split Out Bugs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Stats": {
+      "main": [
+        [
+          {
+            "node": "Split Out1",
             "type": "main",
             "index": 0
           }
