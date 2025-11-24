@@ -1,0 +1,61 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "U07UN5Y6FNF",
+          "mode": "list",
+          "cachedResultName": "zain.saeed"
+        },
+        "text": "=Error Occurred in n8n flow:\nJson: {{ $json.toJsonString() }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        432,
+        -128
+      ],
+      "id": "97d990d6-f132-46b9-a508-d54bc6e2cfa1",
+      "name": "Send a message",
+      "webhookId": "45a179ef-5285-4eca-866b-da4863d0111a",
+      "credentials": {
+        "slackApi": {
+          "id": "1PPlFAPnbiUMnQUF",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.errorTrigger",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -128
+      ],
+      "id": "37b3d8f4-0104-4d13-bddd-58e11d568d4b",
+      "name": "Error Trigger"
+    }
+  ],
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "3fc43a92c22862417f4719776cb757b2a58a8e17f1807df8cfc5950d6ed3e367"
+  }
+}
