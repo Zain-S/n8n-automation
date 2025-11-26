@@ -13,7 +13,7 @@
       "name": "OpenAI Chat Model",
       "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
       "position": [
-        1392,
+        1384,
         400
       ],
       "typeVersion": 1.2,
@@ -438,35 +438,6 @@
     },
     {
       "parameters": {
-        "select": "user",
-        "user": {
-          "__rl": true,
-          "value": "U07UN5Y6FNF",
-          "mode": "list",
-          "cachedResultName": "zain.saeed"
-        },
-        "text": "={{ $json.text }}",
-        "otherOptions": {}
-      },
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
-      "position": [
-        2336,
-        128
-      ],
-      "id": "bf6bb07d-d0ad-4af0-ae6a-eb7a24ca44df",
-      "name": "Send message (Personal Testing)",
-      "webhookId": "79596c6f-10c6-4452-af07-37637493b99e",
-      "credentials": {
-        "slackApi": {
-          "id": "1PPlFAPnbiUMnQUF",
-          "name": "Slack account"
-        }
-      },
-      "disabled": true
-    },
-    {
-      "parameters": {
         "method": "POST",
         "url": "={{ $json.url }}/hooks",
         "authentication": "predefinedCredentialType",
@@ -788,8 +759,8 @@
       "type": "n8n-nodes-base.slack",
       "typeVersion": 2.3,
       "position": [
-        2544,
-        -64
+        2336,
+        128
       ],
       "id": "0d97bbca-ed29-4648-b86f-a17f78f9ae24",
       "name": "Send message to user",
@@ -884,12 +855,12 @@
       "main": [
         [
           {
-            "node": "Send message (Personal Testing)",
+            "node": "Send message in channel",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Send message in channel",
+            "node": "Send message to user",
             "type": "main",
             "index": 0
           }
@@ -968,7 +939,7 @@
             "index": 0
           },
           {
-            "node": "Send message (Personal Testing)",
+            "node": "Send message to user",
             "type": "main",
             "index": 0
           }
@@ -988,13 +959,7 @@
     },
     "Send message in channel": {
       "main": [
-        [
-          {
-            "node": "Send message to user",
-            "type": "main",
-            "index": 0
-          }
-        ]
+        []
       ]
     },
     "Get Existing Hook": {
