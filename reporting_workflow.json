@@ -14,7 +14,7 @@
       "typeVersion": 1.2,
       "position": [
         -2144,
-        352
+        344
       ],
       "id": "c10287af-7c2e-4566-b536-c7e38893c06b",
       "name": "Daily Report"
@@ -33,7 +33,7 @@
       "typeVersion": 1.2,
       "position": [
         -2144,
-        736
+        728
       ],
       "id": "f5d773d6-8938-441a-aba9-3dd0a119d24b",
       "name": "Monthly Report"
@@ -56,7 +56,7 @@
       "typeVersion": 1.2,
       "position": [
         -2144,
-        544
+        536
       ],
       "id": "9841dce2-9329-447f-8555-9c1e111c8a5c",
       "name": "Weekly Report"
@@ -84,7 +84,7 @@
       "typeVersion": 4.7,
       "position": [
         -1024,
-        544
+        536
       ],
       "id": "de47dd01-6dcc-46ac-8972-2bf7ef313a26",
       "name": "Get Users",
@@ -114,7 +114,7 @@
       "typeVersion": 3.4,
       "position": [
         -1248,
-        544
+        536
       ],
       "id": "acf1f15a-a9d7-4399-a5d2-9507b9b33966",
       "name": "Set Base Configuration",
@@ -142,7 +142,7 @@
       "typeVersion": 4.7,
       "position": [
         -1472,
-        544
+        536
       ],
       "id": "4f291be3-ea83-48be-b3df-eb3baa6775a3",
       "name": "Get Base Configuration",
@@ -242,7 +242,7 @@
       "typeVersion": 2,
       "position": [
         544,
-        -288
+        -280
       ],
       "id": "b5c19670-9325-47c9-b673-b6dd3466fe23",
       "name": "Line Changes Count"
@@ -256,7 +256,7 @@
       "typeVersion": 1,
       "position": [
         -352,
-        544
+        536
       ],
       "id": "375f4cb4-b8d5-49f3-9d89-2431bc01227e",
       "name": "Split Out"
@@ -269,7 +269,7 @@
       "typeVersion": 2,
       "position": [
         -128,
-        544
+        536
       ],
       "id": "45025502-9bee-4a88-a7a3-2fa25bc7f930",
       "name": "Done Tasks",
@@ -284,7 +284,7 @@
       "typeVersion": 1,
       "position": [
         -352,
-        736
+        728
       ],
       "id": "0804b680-b5a8-4fc7-a1b0-37b1eee082a9",
       "name": "Split Out Bugs",
@@ -298,7 +298,7 @@
       "typeVersion": 2,
       "position": [
         -128,
-        736
+        728
       ],
       "id": "ae1291a7-790c-456b-a001-d30e9d2d2acb",
       "name": "Bugs",
@@ -358,7 +358,7 @@
       "typeVersion": 2,
       "position": [
         320,
-        -48
+        -40
       ],
       "id": "43fd8155-541a-44a3-93c4-17cefe36313b",
       "name": "Commit Report"
@@ -381,7 +381,7 @@
       "typeVersion": 3.4,
       "position": [
         -1920,
-        352
+        344
       ],
       "id": "ec121991-e5a9-43b0-b667-8c69952bcfcb",
       "name": "Set Daily Type"
@@ -404,7 +404,7 @@
       "typeVersion": 3.4,
       "position": [
         -1920,
-        736
+        728
       ],
       "id": "e9c4d1eb-bdc0-40aa-949b-5354ca8df136",
       "name": "Set Monthly Type"
@@ -427,7 +427,7 @@
       "typeVersion": 3.4,
       "position": [
         -1920,
-        544
+        536
       ],
       "id": "e0fa5ba8-3926-4c51-aa32-f1df2b2ca7f2",
       "name": "Set Weekly Type"
@@ -440,7 +440,7 @@
       "typeVersion": 2,
       "position": [
         -1696,
-        544
+        536
       ],
       "id": "e1afb694-bba1-49d4-9f19-e748ae5b4b1b",
       "name": "Set Days"
@@ -550,7 +550,7 @@
       "typeVersion": 4.3,
       "position": [
         -800,
-        832
+        824
       ],
       "id": "fd7a1fe8-45e9-44bb-ba3d-6879fc60d3da",
       "name": "Get Done Issues (Days)",
@@ -590,7 +590,7 @@
       "typeVersion": 4.3,
       "position": [
         -800,
-        1024
+        1016
       ],
       "id": "f8b24f3c-c559-4a45-8984-e530ba108997",
       "name": "Get Bugs (Days)",
@@ -613,19 +613,6 @@
       ],
       "id": "65b0eabf-132b-4566-b5e8-07cfd528fa78",
       "name": "Mapping"
-    },
-    {
-      "parameters": {
-        "jsCode": "const triggerdays = $(\"Set Days\").last().json.days;\nconst report = $input.all().flatMap(i => i.json); // ensure flattened array\n\n// Determine report type based on days\nlet reportType = \"\";\nif (triggerdays == 1) reportType = \"Daily\";\nelse if (triggerdays == 7) reportType = \"Weekly\";\nelse if (triggerdays == 30) reportType = \"Monthly\";\nelse reportType = `${triggerdays}-Day`;\n\n// Start building message\nlet message = `*🧠 Techvention ${reportType} Developer Performance Report*\\n`;\nmessage += `Hey <@U033AAC2DQD> and <@U04BAQRBSGZ>, here is your ${reportType.toLowerCase()} report!\\n\\n`;\n\nfor (const r of report) {\n  // Basic info\n  message += `*👨‍💻 ${r.Name}*  (_${r.Github_UserName}_) <@${r.Slack_User_id}>\\n`;\n  message += `• *🧩 PRs:* ${Array.isArray(r.prs) ? r.prs.length : 0}\\n`;\n  message += `• *💾 Commits:* ${Array.isArray(r.commits) ? r.commits.length : 0}\\n`;\n  message += `• *💻 Code Stats:* +${r.additions} / -${r.deletions} (total ${r.total})\\n`;\n  message += `• *📊 Jira Status:* ${r.statusCounts}\\n`;\n  message += `• *✅ Done Tasks:* ${Array.isArray(r.doneTasks) ? r.doneTasks.length : 0}\\n`;\n  message += `• *🐞 Bugs:* ${Array.isArray(r.bugs) ? r.bugs.length : 0}\\n`;\n\n  // PR details\n  if (r.prs?.length) {\n    message += `\\n*🧩 Pull Requests:*\\n`;\n    r.prs.forEach(pr => {\n      message += `• <${pr.url}|${pr.title}> (${pr.created_at?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Commit details\n  if (r.commits?.length) {\n    message += `\\n*💾 Commits:*\\n`;\n    r.commits.forEach(c => {\n      const msg = c.message.length > 50 ? c.message.slice(0, 50) + \"…\" : c.message;\n      message += `• <${c.url}|${msg}> (${c.date?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Done tasks\n  if (r.doneTasks?.length) {\n    message += `\\n*✅ Done Tasks:*\\n`;\n    r.doneTasks.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  // Bug tasks\n  if (r.bugs?.length) {\n    message += `\\n*🐞 Bugs:*\\n`;\n    r.bugs.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  message += `\\n──────────────────────────────\\n`;\n}\n\n// Output for Slack\nreturn [{ json: { text: message } }];"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        1440,
-        320
-      ],
-      "id": "65f12c53-ac02-43b6-adbd-78b480a9f4d8",
-      "name": "Message Creation"
     },
     {
       "parameters": {
@@ -657,35 +644,6 @@
     },
     {
       "parameters": {
-        "select": "user",
-        "user": {
-          "__rl": true,
-          "value": "U07UN5Y6FNF",
-          "mode": "list",
-          "cachedResultName": "zain.saeed"
-        },
-        "text": "={{ $json.text }}",
-        "otherOptions": {}
-      },
-      "type": "n8n-nodes-base.slack",
-      "typeVersion": 2.3,
-      "position": [
-        1664,
-        416
-      ],
-      "id": "1a7bb08e-41e1-488c-8098-2c81dc2e6730",
-      "name": "Send personal message",
-      "webhookId": "b05869d9-de3e-449e-9180-7979fc25d9b0",
-      "credentials": {
-        "slackApi": {
-          "id": "1PPlFAPnbiUMnQUF",
-          "name": "Slack account"
-        }
-      },
-      "disabled": true
-    },
-    {
-      "parameters": {
         "url": "https://techvention-new.atlassian.net/rest/api/3/search/jql",
         "authentication": "predefinedCredentialType",
         "nodeCredentialType": "jiraSoftwareCloudApi",
@@ -712,7 +670,7 @@
       "typeVersion": 4.3,
       "position": [
         -800,
-        1216
+        1208
       ],
       "id": "59668d2a-90b3-4543-9461-c4734f496219",
       "name": "Get Stats",
@@ -732,7 +690,7 @@
       "typeVersion": 1,
       "position": [
         -352,
-        928
+        920
       ],
       "id": "2fbc8d43-4494-48f3-813b-e86a6be1c475",
       "name": "Split Out1"
@@ -745,7 +703,7 @@
       "typeVersion": 2,
       "position": [
         -128,
-        928
+        920
       ],
       "id": "ae272697-19d9-478d-82de-e70c18ddd1e4",
       "name": "Stats"
@@ -1000,7 +958,7 @@
       "typeVersion": 4.3,
       "position": [
         -800,
-        256
+        248
       ],
       "id": "4be7e4bc-f18e-423d-be2c-5c5364ad1c21",
       "name": "Get Done Issues (Days) (bdata)",
@@ -1040,7 +998,7 @@
       "typeVersion": 4.3,
       "position": [
         -800,
-        448
+        440
       ],
       "id": "5169597b-65f3-422a-945e-0ba37af5c426",
       "name": "Get Bugs (Days) (bdata)",
@@ -1079,7 +1037,7 @@
       "typeVersion": 4.3,
       "position": [
         -800,
-        640
+        632
       ],
       "id": "94df740b-6899-493a-a3db-70cc7408cd2f",
       "name": "Get Stats (bdata)",
@@ -1107,7 +1065,7 @@
       "typeVersion": 3.2,
       "position": [
         320,
-        -288
+        -280
       ],
       "id": "f11ab2e5-99db-4c92-8a43-a33c00cc50f5",
       "name": "Merge Commit Details"
@@ -1129,7 +1087,7 @@
       "typeVersion": 3.2,
       "position": [
         -576,
-        544
+        536
       ],
       "id": "ba4c7b76-28e5-449c-87be-1b102a830f65",
       "name": "Merge Done Issues (days)"
@@ -1140,7 +1098,7 @@
       "typeVersion": 3.2,
       "position": [
         -576,
-        736
+        728
       ],
       "id": "582685f3-1682-472e-8aa7-13cb828ba8f0",
       "name": "Merge Bugs (Days)"
@@ -1151,10 +1109,63 @@
       "typeVersion": 3.2,
       "position": [
         -576,
-        928
+        920
       ],
       "id": "de3f45d1-1dac-40e9-8e50-4ae86c7aaedf",
       "name": "Merge Stats"
+    },
+    {
+      "parameters": {
+        "jsCode": "const triggerdays = $(\"Set Days\").last().json.days;\nconst report = $input.all().flatMap(i => i.json); // ensure flattened array\n\n// Determine report type based on days\nlet reportType = \"\";\nif (triggerdays == 1) reportType = \"Daily\";\nelse if (triggerdays == 7) reportType = \"Weekly\";\nelse if (triggerdays == 30) reportType = \"Monthly\";\nelse reportType = `${triggerdays}-Day`;\n\n// Start building message\nlet message = `*🧠 Techvention ${reportType} Developer Performance Report*\\n`;\nmessage += `Hey <@U033AAC2DQD> and <@U04BAQRBSGZ>, here is your ${reportType.toLowerCase()} report!\\n\\n`;\n\nfor (const r of report) {\n  // Basic info\n  message += `*👨‍💻 ${r.Name}*  (_${r.Github_UserName}_) <@${r.Slack_User_id}>\\n`;\n  message += `• *🧩 PRs:* ${Array.isArray(r.prs) ? r.prs.length : 0}\\n`;\n  message += `• *💾 Commits:* ${Array.isArray(r.commits) ? r.commits.length : 0}\\n`;\n  message += `• *💻 Code Stats:* +${r.additions} / -${r.deletions} (total ${r.total})\\n`;\n  message += `• *📊 Jira Status:* ${r.statusCounts}\\n`;\n  message += `• *✅ Done Tasks:* ${Array.isArray(r.doneTasks) ? r.doneTasks.length : 0}\\n`;\n  message += `• *🐞 Bugs:* ${Array.isArray(r.bugs) ? r.bugs.length : 0}\\n`;\n\n  // PR details\n  if (r.prs?.length) {\n    message += `\\n*🧩 Pull Requests:*\\n`;\n    r.prs.forEach(pr => {\n      message += `• <${pr.url}|${pr.title}> (${pr.created_at?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Commit details\n  if (r.commits?.length) {\n    message += `\\n*💾 Commits:*\\n`;\n    r.commits.forEach(c => {\n      const msg = c.message.length > 50 ? c.message.slice(0, 50) + \"…\" : c.message;\n      message += `• <${c.url}|${msg}> (${c.date?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Done tasks\n  if (r.doneTasks?.length) {\n    message += `\\n*✅ Done Tasks:*\\n`;\n    r.doneTasks.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  // Bug tasks\n  if (r.bugs?.length) {\n    message += `\\n*🐞 Bugs:*\\n`;\n    r.bugs.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  message += `\\n──────────────────────────────\\n`;\n}\n\n// Output for Slack\nreturn [{ json: { text: message } }];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        224
+      ],
+      "id": "65f12c53-ac02-43b6-adbd-78b480a9f4d8",
+      "name": "Group Message Creation"
+    },
+    {
+      "parameters": {
+        "select": "user",
+        "user": {
+          "__rl": true,
+          "value": "={{ $json.slackUserId }}",
+          "mode": "id"
+        },
+        "text": "={{ $json.text }}",
+        "otherOptions": {}
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1664,
+        416
+      ],
+      "id": "1a7bb08e-41e1-488c-8098-2c81dc2e6730",
+      "name": "Send message to User",
+      "webhookId": "b05869d9-de3e-449e-9180-7979fc25d9b0",
+      "credentials": {
+        "slackApi": {
+          "id": "1PPlFAPnbiUMnQUF",
+          "name": "Slack account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const triggerdays = $(\"Set Days\").last().json.days;\nconst report = $input.all().flatMap(i => i.json); // ensure flattened array\n\n// Determine report type based on days\nlet reportType = \"\";\nif (triggerdays == 1) reportType = \"Daily\";\nelse if (triggerdays == 7) reportType = \"Weekly\";\nelse if (triggerdays == 30) reportType = \"Monthly\";\nelse reportType = `${triggerdays}-Day`;\n\n// Array to store individual reports for each user\nlet userReports = [];\n\nfor (const r of report) {\n  // Start building the individual message for each user\n  let message = `*🧠 Techvention ${reportType} Developer Performance Report*\\n`;\n  message += `Hey <@${r.Slack_User_id}>, here is your ${reportType.toLowerCase()} report!\\n\\n`;\n\n  // Basic info for the individual user\n  message += `*👨‍💻 ${r.Name}*  (_${r.Github_UserName}_) <@${r.Slack_User_id}>\\n`;\n  message += `• *🧩 PRs:* ${Array.isArray(r.prs) ? r.prs.length : 0}\\n`;\n  message += `• *💾 Commits:* ${Array.isArray(r.commits) ? r.commits.length : 0}\\n`;\n  message += `• *💻 Code Stats:* +${r.additions} / -${r.deletions} (total ${r.total})\\n`;\n  message += `• *📊 Jira Status:* ${r.statusCounts}\\n`;\n  message += `• *✅ Done Tasks:* ${Array.isArray(r.doneTasks) ? r.doneTasks.length : 0}\\n`;\n  message += `• *🐞 Bugs:* ${Array.isArray(r.bugs) ? r.bugs.length : 0}\\n`;\n\n  // PR details\n  if (r.prs?.length) {\n    message += `\\n*🧩 Pull Requests:*\\n`;\n    r.prs.forEach(pr => {\n      message += `• <${pr.url}|${pr.title}> (${pr.created_at?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Commit details\n  if (r.commits?.length) {\n    message += `\\n*💾 Commits:*\\n`;\n    r.commits.forEach(c => {\n      const msg = c.message.length > 50 ? c.message.slice(0, 50) + \"…\" : c.message;\n      message += `• <${c.url}|${msg}> (${c.date?.split('T')[0]})\\n`;\n    });\n  }\n\n  // Done tasks\n  if (r.doneTasks?.length) {\n    message += `\\n*✅ Done Tasks:*\\n`;\n    r.doneTasks.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  // Bug tasks\n  if (r.bugs?.length) {\n    message += `\\n*🐞 Bugs:*\\n`;\n    r.bugs.forEach(t => {\n      message += `• <${t.link}|${t.key}> – ${t.summary}\\n`;\n    });\n  }\n\n  message += `\\n──────────────────────────────\\n`;\n\n  // Store each individual message for later sending\n  userReports.push({\n    slackUserId: r.Slack_User_id,\n    message: message,\n  });\n}\n\n// Output for Slack: Separate message for each user\nreturn userReports.map(report => ({\n  json: {\n    text: report.message,\n    slackUserId: report.slackUserId,\n  }\n}));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1440,
+        416
+      ],
+      "id": "c0d40893-ffe5-47df-bc68-34c4ec5af3b5",
+      "name": "User Message Creation"
     }
   ],
   "connections": {
@@ -1493,23 +1504,12 @@
       "main": [
         [
           {
-            "node": "Message Creation",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Message Creation": {
-      "main": [
-        [
-          {
-            "node": "Send message in channel",
+            "node": "Group Message Creation",
             "type": "main",
             "index": 0
           },
           {
-            "node": "Send personal message",
+            "node": "User Message Creation",
             "type": "main",
             "index": 0
           }
@@ -1732,6 +1732,28 @@
         [
           {
             "node": "Split Out1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Group Message Creation": {
+      "main": [
+        [
+          {
+            "node": "Send message in channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "User Message Creation": {
+      "main": [
+        [
+          {
+            "node": "Send message to User",
             "type": "main",
             "index": 0
           }
