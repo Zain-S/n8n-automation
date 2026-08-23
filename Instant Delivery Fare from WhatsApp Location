@@ -1,0 +1,504 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "instant-delivery-location",
+        "options": {
+          "responseData": "noData"
+        }
+      },
+      "id": "9a3e0ac3-8b3c-447f-b02e-653c293cea73",
+      "name": "Evolution Location Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -272,
+        96
+      ],
+      "webhookId": "8d1bc092-349f-4e0e-a98e-95e2bf9db471"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\n// Chatwoot settings\nconst CHATWOOT_BASE_URL = 'https://chatwoot.distributorflow.com';\nconst CHATWOOT_ACCOUNT_ID = input.account_id;\n\n// Delivery settings\nconst ORIGIN_LAT = 31.581515;\nconst ORIGIN_LON = 74.377472;\nconst BASE_FARE = 100;\nconst RATE_PER_KM = 15.5;\nconst FREE_DELIVERY = 150;\n\nreturn [\n  {\n    json: {\n      latitude: input.latitude,\n      longitude: input.longitude,\n      conversation_id: input.conversation_id,\n      account_id: CHATWOOT_ACCOUNT_ID,\n\n      originLat: ORIGIN_LAT,\n      originLon: ORIGIN_LON,\n\n      baseFare: BASE_FARE,\n      ratePerKm: RATE_PER_KM,\n      freeDelivery: FREE_DELIVERY,\n\n      chatwootBaseUrl: CHATWOOT_BASE_URL\n    }\n  }\n];"
+      },
+      "id": "fb78af9c-657c-4930-9827-ce38066cc304",
+      "name": "Normalize Location + Config",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "url": "={{ 'https://router.project-osrm.org/route/v1/driving/' + $json.originLon + ',' + $json.originLat + ';' + $json.longitude + ',' + $json.latitude }}",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "overview",
+              "value": "false"
+            },
+            {
+              "name": "steps",
+              "value": "false"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "KKFoods-n8n-delivery-estimator/1.0"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "da597903-06d1-469c-827a-4169a50953fa",
+      "name": "OSRM Road Distance",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1744,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const cfg = $('Normalize Location + Config').first().json;\nconst response = $json;\n\nif (\n  response.code !== 'Ok' ||\n  !Array.isArray(response.routes) ||\n  !response.routes.length\n) {\n  throw new Error(\n    `OSRM could not calculate a route. Code: ${response.code ?? 'unknown'}`\n  );\n}\n\nconst meters = Number(response.routes[0].distance);\n\nif (!Number.isFinite(meters)) {\n  throw new Error('OSRM route did not contain a valid distance.');\n}\n\nconst distanceKm = meters / 1000;\n\n// Courier fare calculation\nconst estimatedFare = Math.round(\n  cfg.baseFare + (cfg.ratePerKm * distanceKm)\n);\n\n// Remove free delivery benefit\nlet remainingFare = Math.max(\n  0,\n  estimatedFare - cfg.freeDelivery\n);\n\n// Minimum instant delivery charge Rs.100\nif (remainingFare > 0 && remainingFare < 100) {\n  remainingFare = 100;\n}\n\n// Delivery eligibility\nlet eligibility;\n\nif (distanceKm <= 25) {\n  eligibility = '✅ All pack sizes can be delivered.';\n} else if (distanceKm <= 30) {\n  eligibility = '⚠️ Only 10L can be delivered.';\n} else {\n  eligibility = '⛔ Instant delivery is not available at this distance.';\n}\n\n\n// Agent private note\nconst note = [\n  remainingFare > 0\n    ? `⚡ Instant Delivery Charges: Rs.${remainingFare}`\n    : `✅ Instant Delivery: FREE`,\n\n  `📍 Distance: ${distanceKm.toFixed(2)} KM`,\n\n  '',\n\n  '💳 Payment Instructions:',\n  'Customer has to pay the complete amount in advance through online payment. Delivery will be dispatched via inDrive Courier.',\n\n  '',\n\n  'JazzCash:',\n  '03221843090',\n  'Zain',\n\n  '',\n\n  \"If customer doesn't want to make advance online payment, please contact admin.\",\n\n  '',\n\n  eligibility\n].join('\\n');\n\n\nreturn {\n  json: {\n    ...cfg,\n    deliveryService: 'inDrive Courier',\n    distanceMeters: meters,\n    distanceKm: Math.round(distanceKm * 100) / 100,\n    estimatedFare,\n    remainingFare,\n    eligibility,\n    note\n  }\n};"
+      },
+      "id": "7d4a9191-d18f-45c0-af27-7c84c26811d9",
+      "name": "Calculate Fare",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1968,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $json.chatwootBaseUrl + '/api/v1/accounts/' + $json.account_id + '/conversations/' + $json.conversation_id + '/messages' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api_access_token",
+              "value": "LCv2tQ3fyWg3ZSCDsbsySZgj"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  content: $json.note,\n  message_type: 'outgoing',\n  private: true,\n  content_type: 'text'\n} }}",
+        "options": {
+          "timeout": 10000
+        }
+      },
+      "id": "4545696e-9289-4668-93d6-ba77aec628ab",
+      "name": "Create Chatwoot Private Note",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2192,
+        16
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body;\n\n// Ignore anything that is not an incoming customer message\nif (\n  !body ||\n  body.event !== 'message_created' ||\n  body.message_type !== 'incoming' ||\n  body.private === true\n) {\n  return [];\n}\n\nconst content = String(body.content || '');\n\nconst googleMapsMatch = content.match(\n  /(https?:\\/\\/(?:maps\\.app\\.goo\\.gl|goo\\.gl\\/maps|www\\.google\\.com\\/maps)[^\\s]+)/\n);\n\nif (googleMapsMatch) {\n  return [\n    {\n      json: {\n        google_maps_url: googleMapsMatch[1],\n        conversation_id: body.conversation.id,\n        account_id: body.account.id,\n        location_type: 'google_maps_link'\n      }\n    }\n  ];\n}\n\n// Only continue if this is an actual WhatsApp location message\nconst latMatch = content.match(/\\*Latitude:\\*\\s*([-\\d.]+)/);\nconst lonMatch = content.match(/\\*Longitude:\\*\\s*([-\\d.]+)/);\n\nif (!latMatch || !lonMatch) {\n  return [];\n}\n\nconst latitude = Number(latMatch[1]);\nconst longitude = Number(lonMatch[1]);\n\nif (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {\n  return [];\n}\n\nreturn [\n  {\n    json: {\n      latitude,\n      longitude,\n      conversation_id: body.conversation.id,\n      account_id: body.account.id\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        96
+      ],
+      "id": "ca7dc578-596a-4833-9a9c-716afb5b1fe7",
+      "name": "Extract Location",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "5278fb3d-8fa5-4425-b050-0347e54c6d50",
+              "leftValue": "={{ $json.location_type }}",
+              "rightValue": "google_maps_link",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        176,
+        96
+      ],
+      "id": "bede638f-c34a-4123-b0d2-1c5969bc1265",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "url": "={{ $json.google_maps_url }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0"
+            }
+          ]
+        },
+        "options": {
+          "redirect": {
+            "redirect": {}
+          },
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true,
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "name": "Resolve Google Maps Link",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        400,
+        -80
+      ],
+      "id": "392752f3-33d1-416b-be8a-8861a1ba8b0a"
+    },
+    {
+      "parameters": {
+        "jsCode": "const original = $('Extract Location').first().json;\n\nconst html = String(\n  $json.data ??\n  $json.body ??\n  ''\n);\n\nlet query = null;\n\n// Extract q=Shadab+Colony+Rd%2C+Lahore\nconst qMatch = html.match(/[?&](?:amp;)?q=([^&\"']+)/i);\n\nif (qMatch) {\n  try {\n    query = decodeURIComponent(\n      qMatch[1].replace(/\\+/g, ' ')\n    );\n  } catch {\n    query = qMatch[1].replace(/\\+/g, ' ');\n  }\n}\n\nif (!query) {\n  throw new Error('Could not extract location name from Google Maps link.');\n}\n\nreturn [{\n  json: {\n    geocode_query: query,\n    conversation_id: original.conversation_id,\n    account_id: original.account_id\n  }\n}];"
+      },
+      "name": "Extract Google Maps Place",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        -80
+      ],
+      "id": "1931db3e-1d48-4f05-a6f0-5d0b4f729e88"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $json;\nconst text = String(input.geocode_query).trim();\n\nlet latitude;\nlet longitude;\n\n// Decimal format: 31.493813,74.313731\nconst decimalMatch = text.match(\n  /^(-?\\d+(?:\\.\\d+)?)\\s*,\\s*(-?\\d+(?:\\.\\d+)?)$/\n);\n\nif (decimalMatch) {\n  latitude = Number(decimalMatch[1]);\n  longitude = Number(decimalMatch[2]);\n} else {\n  // DMS format\n  const dmsMatch = text.match(\n    /(\\d+)°(\\d+)'([\\d.]+)\"([NS])\\s+(\\d+)°(\\d+)'([\\d.]+)\"([EW])/\n  );\n\n  if (!dmsMatch) {\n    throw new Error('Could not convert Google Maps coordinates.');\n  }\n\n  function dmsToDecimal(deg, min, sec, dir) {\n    let decimal =\n      Number(deg) +\n      Number(min) / 60 +\n      Number(sec) / 3600;\n\n    if (dir === 'S' || dir === 'W') decimal *= -1;\n\n    return decimal;\n  }\n\n  latitude = dmsToDecimal(\n    dmsMatch[1],\n    dmsMatch[2],\n    dmsMatch[3],\n    dmsMatch[4]\n  );\n\n  longitude = dmsToDecimal(\n    dmsMatch[5],\n    dmsMatch[6],\n    dmsMatch[7],\n    dmsMatch[8]\n  );\n}\n\nreturn [{\n  json: {\n    latitude,\n    longitude,\n    conversation_id: input.conversation_id,\n    account_id: input.account_id\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        -272
+      ],
+      "id": "6872227e-176f-4b70-899c-3ef1f04d66f5",
+      "name": "Convert Google Maps Coordinates"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "6e095b9f-aad7-4120-9cbb-788ee42c4ed2",
+              "leftValue": "={{ $json.geocode_query.includes('°') || /^-?\\d+(?:\\.\\d+)?\\s*,\\s*-?\\d+(?:\\.\\d+)?$/.test($json.geocode_query) }}",
+              "rightValue": "true",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        848,
+        -80
+      ],
+      "id": "041a9056-0e99-4236-8af2-fcbfac6eb9b9",
+      "name": "If1"
+    },
+    {
+      "parameters": {
+        "url": "https://nominatim.openstreetmap.org/search",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "q",
+              "value": "={{ \n  $json.geocode_query\n    .replace(/,\\s*\\d{5,6}\\s*$/, '')\n    .split(',')\n    .slice(1)\n    .join(',')\n    .trim() + ', Pakistan'\n}}"
+            },
+            {
+              "name": "format",
+              "value": "jsonv2"
+            },
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "KKFoods-delivery-estimator/1.0"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        1072,
+        -80
+      ],
+      "id": "cc8cc2dd-eb7c-41b1-8818-5c03b33724ca",
+      "name": "Geocode Place Name"
+    },
+    {
+      "parameters": {
+        "jsCode": "const original = $('Extract Google Maps Place').first().json;\n\nconst latitude = Number($json.lat);\nconst longitude = Number($json.lon);\n\nif (!Number.isFinite(latitude) || !Number.isFinite(longitude)) {\n  throw new Error('Invalid coordinates returned from geocoding.');\n}\n\nreturn [{\n  json: {\n    latitude,\n    longitude,\n    conversation_id: original.conversation_id,\n    account_id: original.account_id\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        -80
+      ],
+      "id": "b7959673-79f2-4956-bcb7-ef5505329848",
+      "name": "Prepare Geocoded Location"
+    },
+    {
+      "parameters": {
+        "jsCode": "const input = $json;\nconst originalQuery = String(input.geocode_query || '').trim();\n\nif (!originalQuery) {\n  throw new Error('No address received.');\n}\n\nconst withoutPostal = originalQuery\n  .replace(/,?\\s*\\d{5,6}\\s*$/, '')\n  .trim();\n\nconst parts = withoutPostal\n  .split(',')\n  .map(x => x.trim())\n  .filter(Boolean);\n\nconst queries = [];\n\n// Full address\nqueries.push(withoutPostal);\n\n// Without first place/business name\nif (parts.length > 2) {\n  queries.push(parts.slice(1).join(', '));\n}\n\n// Remove first two parts\nif (parts.length > 3) {\n  queries.push(parts.slice(2).join(', '));\n}\n\n// Last 3 address parts\nif (parts.length >= 3) {\n  queries.push(parts.slice(-3).join(', '));\n}\n\n// Last 2 address parts\nif (parts.length >= 2) {\n  queries.push(parts.slice(-2).join(', '));\n}\n\nconst uniqueQueries = [...new Set(queries)];\n\n\n// ======================================\n// 1. TRY NOMINATIM\n// ======================================\n\nfor (const query of uniqueQueries) {\n  try {\n    const result = await this.helpers.httpRequest({\n      method: 'GET',\n      url: 'https://nominatim.openstreetmap.org/search',\n      qs: {\n        q: query + ', Pakistan',\n        format: 'jsonv2',\n        limit: 1,\n        countrycodes: 'pk',\n\n        // Bias search around Lahore\n        viewbox: '74.15,31.65,74.50,31.35',\n        bounded: 0\n      },\n      headers: {\n        'User-Agent': 'KKFoods-delivery-estimator/1.0'\n      },\n      json: true\n    });\n\n    if (Array.isArray(result) && result.length > 0) {\n\n      const latitude = Number(result[0].lat);\n      const longitude = Number(result[0].lon);\n\n      if (\n        Number.isFinite(latitude) &&\n        Number.isFinite(longitude)\n      ) {\n        return [{\n          json: {\n            latitude,\n            longitude,\n            conversation_id: input.conversation_id,\n            account_id: input.account_id,\n            geocoder: 'nominatim',\n            matched_address: result[0].display_name,\n            geocode_query_used: query\n          }\n        }];\n      }\n    }\n\n  } catch (e) {}\n}\n\n\n// ======================================\n// 2. TRY PHOTON\n// ======================================\n\nfor (const query of uniqueQueries) {\n  try {\n\n    const result = await this.helpers.httpRequest({\n      method: 'GET',\n      url: 'https://photon.komoot.io/api/',\n      qs: {\n        q: query + ', Lahore, Pakistan',\n        limit: 1,\n\n        // Bias results around Lahore\n        lat: 31.5204,\n        lon: 74.3587\n      },\n      headers: {\n        'User-Agent': 'KKFoods-delivery-estimator/1.0'\n      },\n      json: true\n    });\n\n    const feature = result?.features?.[0];\n\n    if (\n      feature &&\n      Array.isArray(feature.geometry?.coordinates)\n    ) {\n\n      // Photon = longitude, latitude\n      const longitude =\n        Number(feature.geometry.coordinates[0]);\n\n      const latitude =\n        Number(feature.geometry.coordinates[1]);\n\n      if (\n        Number.isFinite(latitude) &&\n        Number.isFinite(longitude)\n      ) {\n\n        return [{\n          json: {\n            latitude,\n            longitude,\n            conversation_id: input.conversation_id,\n            account_id: input.account_id,\n            geocoder: 'photon',\n            matched_address:\n              feature.properties?.name || query,\n            geocode_query_used: query\n          }\n        }];\n      }\n    }\n\n  } catch (e) {}\n}\n\n\n// ======================================\n// NOTHING FOUND\n// ======================================\n\nthrow new Error(\n  `Could not find coordinates for: ${originalQuery}`\n);"
+      },
+      "name": "Dynamic Geocode Place",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        112
+      ],
+      "id": "a120e0c5-316d-496f-b953-583820442174"
+    }
+  ],
+  "connections": {
+    "Evolution Location Webhook": {
+      "main": [
+        [
+          {
+            "node": "Extract Location",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Location + Config": {
+      "main": [
+        [
+          {
+            "node": "OSRM Road Distance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OSRM Road Distance": {
+      "main": [
+        [
+          {
+            "node": "Calculate Fare",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Fare": {
+      "main": [
+        [
+          {
+            "node": "Create Chatwoot Private Note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Location": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Resolve Google Maps Link",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normalize Location + Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Google Maps Link": {
+      "main": [
+        [
+          {
+            "node": "Extract Google Maps Place",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Google Maps Place": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Google Maps Coordinates": {
+      "main": [
+        [
+          {
+            "node": "Normalize Location + Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Convert Google Maps Coordinates",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Geocode Place Name",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Dynamic Geocode Place",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Geocode Place Name": {
+      "main": [
+        [
+          {
+            "node": "Prepare Geocoded Location",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Geocoded Location": {
+      "main": [
+        [
+          {
+            "node": "Normalize Location + Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dynamic Geocode Place": {
+      "main": [
+        [
+          {
+            "node": "Normalize Location + Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "6f5a2c6cb863f2d88c2397184ed6e5bc06fbc1ba2c47f06383f78b7877592b4a"
+  }
+}
