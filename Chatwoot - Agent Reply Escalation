@@ -1,0 +1,1025 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## SETUP\n\nEnv vars required:\n\nLATE_REPLY_TABLE_ID\nCHATWOOT_URL\nCHATWOOT_API_TOKEN\n\nEVOLUTION_URL\nEVOLUTION_API_KEY\nEVOLUTION_INSTANCE\nEVOLUTION_GROUP_JID\n\nPolicy:\n5 min no reply\n→ WhatsApp group warning\n\n5 more min no reply\n→ assign to next ONLINE inbox agent\n\nNew agent gets same 5 + 5 minute cycle.\n\nAgent replies\n→ monitoring stops."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -240,
+        32
+      ],
+      "id": "ac9b68c9-8707-4975-93a1-3118308daae2",
+      "name": "Setup"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -48,
+        624
+      ],
+      "id": "7a3852fc-290a-4bf7-9b2e-66dfeeeb55d4",
+      "name": "Every Minute"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "={{ $env.LATE_REPLY_TABLE_ID }}",
+          "mode": "id"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "active",
+              "keyValue": true
+            }
+          ]
+        },
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        176,
+        624
+      ],
+      "id": "810d982c-016c-4e7f-8a83-98fb1b378b12",
+      "name": "Get Active Monitors"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const row = $json;\nconst now = Date.now();\n\nlet state = {};\n\ntry {\n  state = typeof row.state === 'string'\n    ? JSON.parse(row.state)\n    : (row.state || {});\n} catch (e) {\n  state = {};\n}\n\nconst stageStartedAt = state.stage_started_at\n  ? new Date(state.stage_started_at).getTime()\n  : 0;\n\nconst elapsedMs = stageStartedAt\n  ? now - stageStartedAt\n  : 0;\n\nconst TEN_MINUTES = 10 * 60 * 1000;\nconst FIVE_MINUTES = 5 * 60 * 1000;\n\nlet due = false;\n\n// First warning after 10 minutes\nif (state.stage === 'WAITING_WARNING') {\n  due = elapsedMs >= TEN_MINUTES;\n}\n\n// Reassign 5 minutes after warning\nif (state.stage === 'WAITING_REASSIGN') {\n  due = elapsedMs >= FIVE_MINUTES;\n}\n\nreturn {\n  json: {\n    conversation_id: String(row.conversation_id),\n    active: row.active,\n    ...state,\n    due,\n    elapsed_minutes: Math.floor(elapsedMs / 60000)\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        624
+      ],
+      "id": "8334ee66-1bda-4bd2-877d-db9fb46f943a",
+      "name": "Parse State + Due"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "42f3732d-5669-4631-9f49-59741e0b964b",
+              "leftValue": "={{ $json.due }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        624,
+        624
+      ],
+      "id": "100bf344-e58c-4aca-94d4-e0d15368316b",
+      "name": "Due?"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        848,
+        624
+      ],
+      "id": "9f9c4e5d-f6f1-45c8-b627-129b0913319f",
+      "name": "Loop Over Due"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.CHATWOOT_URL.replace(/\\/$/, '') + '/api/v1/accounts/' + $json.account_id + '/conversations/' + $json.conversation_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api_access_token",
+              "value": "={{ $env.CHATWOOT_API_TOKEN }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1072,
+        560
+      ],
+      "id": "9dc506c0-9782-47b7-84a7-a9ec88a88dd0",
+      "name": "Get Current Conversation"
+    },
+    {
+      "parameters": {
+        "jsCode": "const row = $('Loop Over Due').item.json;\nconst live = $json ?? {};\n\nconst toMs = (v) => {\n  if (v === null || v === undefined || v === '') return 0;\n\n  if (typeof v === 'number') {\n    return v < 1e12 ? v * 1000 : v;\n  }\n\n  const n = Number(v);\n\n  if (!Number.isNaN(n) && String(v).trim() !== '') {\n    return n < 1e12 ? n * 1000 : n;\n  }\n\n  const t = Date.parse(v);\n\n  return Number.isNaN(t) ? 0 : t;\n};\n\n\n// -----------------------------\n// Conversation status\n// -----------------------------\n\nconst status = String(\n  live.status ?? ''\n).toLowerCase();\n\n\n// -----------------------------\n// Current assigned agent\n// -----------------------------\n\nconst assignee =\n  live.meta?.assignee ??\n  live.assignee ??\n  {};\n\nconst current_agent_id = String(\n  assignee.id ?? ''\n);\n\nconst current_agent_name = String(\n  assignee.name ??\n  assignee.available_name ??\n  ''\n);\n\nconst current_agent_role = String(\n  assignee.role ?? ''\n).toLowerCase();\n\n\n// -----------------------------\n// Customer details\n// -----------------------------\n\nconst customer_name =\n  live.meta?.sender?.name ||\n  live.sender?.name ||\n  'Unknown';\n\n\n// -----------------------------\n// Messages\n// -----------------------------\n\nconst messages =\n  Array.isArray(live.messages)\n    ? live.messages\n    : Array.isArray(live.payload?.messages)\n      ? live.payload.messages\n      : [];\n\n\n// -----------------------------\n// Last customer message\n// -----------------------------\n\nconst last_customer_message = messages\n  .filter(m =>\n    String(m.message_type).toLowerCase() === 'incoming'\n  )\n  .sort((a, b) =>\n    toMs(b.created_at) - toMs(a.created_at)\n  )[0]?.content || 'No customer message found';\n\n\n// -----------------------------\n// Conversation URL\n// -----------------------------\n\nconst conversation_url =\n  `${$('Loop Over Due').item.json.chatwoot_url || 'https://chatwoot.distributorflow.com'}/app/accounts/${row.account_id}/conversations/${row.conversation_id}`;\n\n\n// -----------------------------\n// Customer replied?\n// -----------------------------\n\nconst customerTs = toMs(\n  row.customer_message_at\n);\n\nconst replied = messages.some((m) => {\n\n  const mt = String(\n    m.message_type ?? ''\n  ).toLowerCase();\n\n  const outgoing =\n    mt === 'outgoing' ||\n    mt === '1';\n\n  if (!outgoing) {\n    return false;\n  }\n\n  if (m.private === true) {\n    return false;\n  }\n\n  const senderType = String(\n    m.sender?.type ??\n    m.sender_type ??\n    ''\n  ).toLowerCase();\n\n  if (senderType !== 'user') {\n    return false;\n  }\n\n  return toMs(m.created_at) >= customerTs;\n});\n\n\n// -----------------------------\n// Decide action\n// -----------------------------\n\nlet decision = 'reset';\nlet stop_stage = '';\n\nif (replied) {\n\n  decision = 'stop';\n  stop_stage = 'REPLIED';\n\n} else if (\n  status === 'resolved' ||\n  status === 'closed'\n) {\n\n  decision = 'stop';\n  stop_stage = 'RESOLVED';\n\n} else if (\n  current_agent_role === 'administrator'\n) {\n\n  decision = 'stop';\n  stop_stage = 'ADMIN_IGNORED';\n\n} else if (!current_agent_id) {\n\n  decision = 'reassign';\n\n} else if (\n  String(row.monitored_agent_id ?? '') !==\n  current_agent_id\n) {\n\n  decision = 'reset';\n\n} else if (\n  row.stage === 'WAITING_WARNING'\n) {\n\n  decision = 'warn';\n\n} else if (\n  row.stage === 'WAITING_REASSIGN'\n) {\n\n  decision = 'reassign';\n}\n\n\n// -----------------------------\n// Output\n// -----------------------------\n\nreturn [{\n  json: {\n    ...row,\n\n    current_agent_id,\n    current_agent_name,\n    current_agent_role,\n\n    customer_name,\n    last_customer_message,\n    conversation_url,\n\n    decision,\n    stop_stage\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        560
+      ],
+      "id": "4010c462-b60b-4fb0-b4e1-7c11ba995d24",
+      "name": "Decide State"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4e8a25f7-c185-409e-971f-f01dc078ccbe",
+              "leftValue": "={{ $json.decision }}",
+              "rightValue": "stop",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1744,
+        560
+      ],
+      "id": "e091c226-545a-4709-834e-e99d754889e3",
+      "name": "Stop?"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const r = $json;\nconst state = {\n  display_id: r.display_id,\n  account_id: r.account_id,\n  inbox_id: r.inbox_id,\n  customer_message_at: r.customer_message_at,\n  monitored_agent_id: r.monitored_agent_id,\n  monitored_agent_name: r.monitored_agent_name,\n  stage: r.stop_stage || 'STOPPED',\n  stage_started_at: new Date().toISOString(),\n  handoff_count: Number(r.handoff_count || 0)\n};\nreturn { json: { conversation_id: r.conversation_id, active: false, state: JSON.stringify(state) } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3536,
+        240
+      ],
+      "id": "c9e30ace-f602-4b31-ae49-52a47413003e",
+      "name": "Build Stop State"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "3ad5aee8-5c3a-43d6-86ad-25a81ffee160",
+              "leftValue": "={{ $json.decision }}",
+              "rightValue": "reset",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1968,
+        656
+      ],
+      "id": "0181c3bd-af01-4611-bb9a-c2820e729e67",
+      "name": "Assignee Changed?"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const r = $json;\nconst now = new Date().toISOString();\nconst state = {\n  display_id: r.display_id,\n  account_id: r.account_id,\n  inbox_id: r.inbox_id,\n  customer_message_at: r.customer_message_at,\n  monitored_agent_id: r.current_agent_id,\n  monitored_agent_name: r.current_agent_name,\n  stage: 'WAITING_WARNING',\n  stage_started_at: now,\n  handoff_count: Number(r.handoff_count || 0)\n};\nreturn { json: { conversation_id: r.conversation_id, active: true, state: JSON.stringify(state) } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3536,
+        432
+      ],
+      "id": "ba3fcc88-7ca6-4671-b217-d40182e04f4b",
+      "name": "Reset Timer State"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "d98633a9-4552-4cd8-89b2-434f22fa09b3",
+              "leftValue": "={{ $json.decision }}",
+              "rightValue": "warn",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        2192,
+        752
+      ],
+      "id": "306600a5-153c-476c-bd4b-b483eb0947f0",
+      "name": "Warn?"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r = $('Decide State').item.json;\nconst now = new Date().toISOString();\nconst state = {\n  display_id: r.display_id,\n  account_id: r.account_id,\n  inbox_id: r.inbox_id,\n  customer_message_at: r.customer_message_at,\n  monitored_agent_id: r.monitored_agent_id,\n  monitored_agent_name: r.monitored_agent_name,\n  stage: 'WAITING_REASSIGN',\n  stage_started_at: now,\n  handoff_count: Number(r.handoff_count || 0)\n};\nreturn { json: { conversation_id: r.conversation_id, active: true, state: JSON.stringify(state) } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3536,
+        624
+      ],
+      "id": "6de57311-cc71-4da5-a331-b5fd61a61ad5",
+      "name": "Mark Warned State"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.CHATWOOT_URL.replace(/\\/$/, '') + '/api/v1/accounts/' + $json.account_id + '/inbox_members/' + $json.inbox_id }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api_access_token",
+              "value": "={{ $env.CHATWOOT_API_TOKEN }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2416,
+        848
+      ],
+      "id": "7b6dc506-c98d-435c-a811-4fce7f34dd81",
+      "name": "Get Inbox Agents"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r = $('Decide State').item.json;\n\n// -------------------------\n// Get inbox agents\n// -------------------------\nconst inboxResult = $('Get Inbox Agents').item.json;\n\nconst inboxAgents = Array.isArray(inboxResult.payload)\n  ? inboxResult.payload\n  : Array.isArray(inboxResult)\n    ? inboxResult\n    : [];\n\n// -------------------------\n// Get account agents\n// Get Account Agents returns\n// one n8n item per agent\n// -------------------------\nconst accountAgents = $input.all().map(item => item.json);\n\n// Current assigned agent\nconst currentAgentId = String(\n  r.current_agent_id ||\n  r.monitored_agent_id ||\n  ''\n);\n\n// IDs of agents that belong to this inbox\nconst inboxAgentIds = new Set(\n  inboxAgents.map(agent => String(agent.id))\n);\n\n// Find agents who:\n// 1. belong to this inbox\n// 2. are online\n// 3. are confirmed\n// 4. are NOT current agent\nconst eligibleAgents = accountAgents\n  .filter(agent =>\n    inboxAgentIds.has(String(agent.id))\n  )\n  .filter(agent =>\n    String(agent.availability_status || '').toLowerCase() === 'online'\n  )\n  .filter(agent =>\n    agent.confirmed === true\n  )\n  .filter(agent =>\n    String(\n      agent.role || ''\n    ).toLowerCase() !== 'administrator'\n  )\n  .filter(agent =>\n    String(agent.id) !== currentAgentId\n  )\n  .sort((a, b) => Number(a.id) - Number(b.id));\n\nif (eligibleAgents.length === 0) {\n  return [{\n    json: {\n      ...r,\n      no_agent_available: true,\n      next_agent_id: null,\n      next_agent_name: null\n    }\n  }];\n}\n\n// Find next ID after current agent\nlet nextAgent = eligibleAgents.find(\n  agent => Number(agent.id) > Number(currentAgentId)\n);\n\n// If none is greater, wrap around\nif (!nextAgent) {\n  nextAgent = eligibleAgents[0];\n}\n\nreturn [{\n  json: {\n    ...r,\n    no_agent_available: false,\n    next_agent_id: String(nextAgent.id),\n    next_agent_name:\n      nextAgent.name ||\n      nextAgent.available_name ||\n      nextAgent.email\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2864,
+        848
+      ],
+      "id": "80e4c1af-02d6-45f8-84b0-07f20fa4b7db",
+      "name": "Select Next Active Agent"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "dab4180f-1f32-4429-a2e8-1a3bff102d60",
+              "leftValue": "={{ $json.no_agent_available }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        3088,
+        848
+      ],
+      "id": "1b1c5c9c-f32e-4a79-bb57-a3f02e541efc",
+      "name": "No Active Agent?"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://chatwoot.distributorflow.com/api/v1/accounts/3/conversations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "api_access_token",
+              "value": "={{ $env.CHATWOOT_API_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  inbox_id: 4,\n  contact_id: 905,\n  assignee_id: 3,\n  message: {\n    content: $('Build Alert Context').item.json.noAgentMessage\n  }\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3312,
+        816
+      ],
+      "id": "bb1a0b51-9da0-404b-9a99-bd487f5d4a34",
+      "name": "Send No Agent Alert"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r = $('Select Next Active Agent').item.json;\nconst state = {\n  display_id: r.display_id,\n  account_id: r.account_id,\n  inbox_id: r.inbox_id,\n  customer_message_at: r.customer_message_at,\n  monitored_agent_id: r.monitored_agent_id,\n  monitored_agent_name: r.monitored_agent_name,\n  stage: 'WAITING_REASSIGN',\n  stage_started_at: new Date().toISOString(),\n  handoff_count: Number(r.handoff_count || 0)\n};\nreturn { json: { conversation_id: r.conversation_id, active: true, state: JSON.stringify(state) } };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3536,
+        816
+      ],
+      "id": "a821cf4e-b9e1-4a25-a762-f00fa8cbaa14",
+      "name": "Retry State"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "={{ $env.CHATWOOT_URL.replace(/\\/$/, '') + '/api/v1/accounts/' + $json.account_id + '/conversations/' + $json.conversation_id + '/assignments' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api_access_token",
+              "value": "={{ $env.CHATWOOT_API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ {\n  assignee_id: Number($json.next_agent_id)\n} }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3312,
+        1008
+      ],
+      "id": "16cf52f3-d102-430d-8128-33fd90c6a7aa",
+      "name": "Assign To Next Agent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://chatwoot.distributorflow.com/api/v1/accounts/3/conversations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "api_access_token",
+              "value": "={{ $env.CHATWOOT_API_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  inbox_id: 4,\n  contact_id: 905,\n  assignee_id: Number($('Select Next Active Agent').item.json.next_agent_id),\n  message: {\n    content: $('Build Alert Context').item.json.reassignmentMessage\n  }\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3760,
+        1104
+      ],
+      "id": "3882bf28-10ac-4734-9ffc-cc39992822c3",
+      "name": "Send Reassignment Notice",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "={{ $env.LATE_REPLY_TABLE_ID }}",
+          "mode": "id"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "conversation_id",
+              "keyValue": "={{ $json.conversation_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "active": "={{ $json.active }}",
+            "state": "={{ $json.state }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "conversation_id",
+              "displayName": "conversation_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        3760,
+        752
+      ],
+      "id": "22087006-f3b7-45bf-8e64-018c5dc1b72d",
+      "name": "Save State"
+    },
+    {
+      "parameters": {
+        "url": "={{ $env.CHATWOOT_URL.replace(/\\/$/, '') + '/api/v1/accounts/' + $('Decide State').item.json.account_id + '/agents' }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api_access_token",
+              "value": "={{ $env.CHATWOOT_API_TOKEN }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        2640,
+        848
+      ],
+      "id": "274fbe5f-e45f-4ad0-a007-2ea087214f33",
+      "name": "Get Account Agents"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const r = $('Select Next Active Agent').item.json;\n\nconst state = {\n  display_id: String(r.display_id),\n  account_id: String(r.account_id),\n  inbox_id: String(r.inbox_id),\n  customer_message_at: r.customer_message_at,\n\n  monitored_agent_id: String(r.next_agent_id),\n  monitored_agent_name: String(r.next_agent_name),\n\n  stage: 'WAITING_WARNING',\n  stage_started_at: new Date().toISOString(),\n\n  handoff_count: Number(r.handoff_count || 0) + 1\n};\n\nreturn {\n  json: {\n    conversation_id: String(r.conversation_id),\n    active: true,\n    state: JSON.stringify(state)\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3536,
+        1008
+      ],
+      "id": "7cd4b3db-ebad-4180-81df-789774fcd8f4",
+      "name": "Reset Timer For New Agent"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://chatwoot.distributorflow.com/api/v1/accounts/3/conversations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api_access_token",
+              "value": "={{ $env.CHATWOOT_API_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  inbox_id: 4,\n  contact_id: 905,\n  assignee_id: Number($('Decide State').item.json.monitored_agent_id),\n  message: {\n    content: $('Build Alert Context').item.json.agentWarningMessage\n  }\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3088,
+        624
+      ],
+      "id": "05b3b664-0522-4673-8233-e4bcad5387a5",
+      "name": "Send Late Reply Warning"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://chatwoot.distributorflow.com/api/v1/accounts/3/conversations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "api_access_token",
+              "value": "={{ $env.CHATWOOT_API_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  inbox_id: 4,\n  contact_id: 905,\n  assignee_id: 3,\n  message: {\n    content: $('Build Alert Context').item.json.adminWarningMessage\n  }\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.5,
+      "position": [
+        3312,
+        624
+      ],
+      "id": "d53187e5-4ca3-400c-ac63-cf0b95122ce3",
+      "name": "Send Late Reply Warning to Admin"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "=https://chatwoot.distributorflow.com/api/v1/accounts/3/conversations",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "api_access_token",
+              "value": "={{ $env.CHATWOOT_API_TOKEN }}"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{\n{\n  inbox_id: 4,\n  contact_id: 905,\n  assignee_id: 3,\n  message: {\n    content: $('Build Alert Context').item.json.adminReassignmentMessage\n  }\n}\n}}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3984,
+        1104
+      ],
+      "id": "78416d99-c090-473c-b31c-fb0464a072bc",
+      "name": "Send Reassignment Notice Admin",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "jsCode": "const r = $('Decide State').item.json;\n\nconst agentName = r.monitored_agent_name || 'Unassigned';\nconst customerName = r.customer_name || 'Unknown';\nconst conversationUrl = r.conversation_url || '';\nconst lastMessage = r.last_customer_message || 'No customer message found';\n\nconst baseInfo =\n  'Customer: ' + customerName + '\\n' +\n  'Conversation: ' + conversationUrl + '\\n\\n' +\n  'Last Customer Message:\\n' +\n  lastMessage;\n\n\n// Agent warning\nconst agentWarningMessage =\n  '⚠️ Late Reply Warning\\n\\n' +\n  'Agent: ' + agentName + '\\n' +\n  baseInfo +\n  '\\n\\n' +\n  'You have not replied for 10 minutes. Please reply now.';\n\n\n// Admin warning\nconst adminWarningMessage =\n  '🚨 Admin Alert - Late Reply\\n\\n' +\n  'Agent: ' + agentName + '\\n' +\n  baseInfo +\n  '\\n\\n' +\n  'Agent has not replied for 10 minutes.';\n\n\n// Agent reassignment\nconst newAgent =\n  r.next_agent_name || 'Unknown';\n\nconst reassignmentMessage =\n  '🔁 Chat Reassigned\\n\\n' +\n  baseInfo +\n  '\\n\\n' +\n  'From: ' + agentName + '\\n' +\n  'To: ' + newAgent +\n  '\\n\\n' +\n  'The new agent now has 5 minutes to reply before receiving a warning.';\n\n\n// Admin reassignment\nconst adminReassignmentMessage =\n  '🚨 Admin Alert - Chat Reassigned\\n\\n' +\n  baseInfo +\n  '\\n\\n' +\n  'From: ' + agentName + '\\n' +\n  'To: ' + newAgent;\n\n\n// No active agent\nconst noAgentMessage =\n  '🚨 No Active Agent Available\\n\\n' +\n  baseInfo +\n  '\\n\\n' +\n  'Current Agent: ' + agentName +\n  '\\n\\n' +\n  'The customer is still waiting, but there is currently no other online agent available for reassignment.';\n\n\nreturn {\n  json: {\n    ...r,\n\n    agentWarningMessage,\n    adminWarningMessage,\n    reassignmentMessage,\n    adminReassignmentMessage,\n    noAgentMessage\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1520,
+        560
+      ],
+      "id": "bf532437-91a0-4ba0-b5b9-281ec29d4501",
+      "name": "Build Alert Context"
+    }
+  ],
+  "connections": {
+    "Every Minute": {
+      "main": [
+        [
+          {
+            "node": "Get Active Monitors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Active Monitors": {
+      "main": [
+        [
+          {
+            "node": "Parse State + Due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse State + Due": {
+      "main": [
+        [
+          {
+            "node": "Due?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Due?": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Due": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get Current Conversation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Current Conversation": {
+      "main": [
+        [
+          {
+            "node": "Decide State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide State": {
+      "main": [
+        [
+          {
+            "node": "Build Alert Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stop?": {
+      "main": [
+        [
+          {
+            "node": "Build Stop State",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Assignee Changed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Stop State": {
+      "main": [
+        [
+          {
+            "node": "Save State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assignee Changed?": {
+      "main": [
+        [
+          {
+            "node": "Reset Timer State",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Warn?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reset Timer State": {
+      "main": [
+        [
+          {
+            "node": "Save State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Warn?": {
+      "main": [
+        [
+          {
+            "node": "Send Late Reply Warning",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Inbox Agents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Warned State": {
+      "main": [
+        [
+          {
+            "node": "Save State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Inbox Agents": {
+      "main": [
+        [
+          {
+            "node": "Get Account Agents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Next Active Agent": {
+      "main": [
+        [
+          {
+            "node": "No Active Agent?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "No Active Agent?": {
+      "main": [
+        [
+          {
+            "node": "Send No Agent Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Assign To Next Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send No Agent Alert": {
+      "main": [
+        [
+          {
+            "node": "Retry State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry State": {
+      "main": [
+        [
+          {
+            "node": "Save State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign To Next Agent": {
+      "main": [
+        [
+          {
+            "node": "Reset Timer For New Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Reassignment Notice": {
+      "main": [
+        [
+          {
+            "node": "Send Reassignment Notice Admin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save State": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Account Agents": {
+      "main": [
+        [
+          {
+            "node": "Select Next Active Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reset Timer For New Agent": {
+      "main": [
+        [
+          {
+            "node": "Send Reassignment Notice",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Late Reply Warning": {
+      "main": [
+        [
+          {
+            "node": "Send Late Reply Warning to Admin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Late Reply Warning to Admin": {
+      "main": [
+        [
+          {
+            "node": "Mark Warned State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Alert Context": {
+      "main": [
+        [
+          {
+            "node": "Stop?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "6f5a2c6cb863f2d88c2397184ed6e5bc06fbc1ba2c47f06383f78b7877592b4a"
+  }
+}
