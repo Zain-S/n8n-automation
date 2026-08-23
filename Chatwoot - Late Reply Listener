@@ -1,0 +1,313 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## SETUP\nCreate Data Table with 3 columns only:\\nconversation_id = string\\nactive = boolean\\nstate = string\\n\\nSet env: LATE_REPLY_TABLE_ID=<table id>\\n\\nUse this workflow's production webhook URL in Chatwoot for message_created.",
+        "height": 240,
+        "width": 368
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "93300ce2-a1ef-43dc-8619-72ae765bbea8",
+      "name": "Setup"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "late-reply-monitor",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        272,
+        384
+      ],
+      "id": "2164f0c4-1177-472f-a99b-48f308a6b6ef",
+      "name": "Webhook",
+      "webhookId": "8e58d2d3-cf27-45ac-aa03-9124f509c099"
+    },
+    {
+      "parameters": {
+        "jsCode": "const b = $json.body ?? $json;\nif (b.event !== 'message_created' || b.private === true) return [];\n\nconst conv = b.conversation ?? {};\nconst assignee = conv.meta?.assignee ?? conv.assignee ?? {};\nconst mt = String(b.message_type ?? '').toLowerCase();\nconst conversation_id = String(conv.id ?? b.conversation_id ?? '');\nif (!conversation_id) return [];\n\nconst toIso = (v) => {\n  if (v === null || v === undefined || v === '') return new Date().toISOString();\n  if (typeof v === 'number') return new Date(v < 1e12 ? v * 1000 : v).toISOString();\n  const n = Number(v);\n  if (!Number.isNaN(n) && String(v).trim() !== '') return new Date(n < 1e12 ? n * 1000 : n).toISOString();\n  const d = new Date(v);\n  return Number.isNaN(d.getTime()) ? new Date().toISOString() : d.toISOString();\n};\n\nif (mt === 'incoming' || mt === '0') {\n  const now = new Date().toISOString();\n  const state = {\n    display_id: String(conv.display_id ?? conv.id ?? ''),\n    account_id: String(b.account?.id ?? conv.account_id ?? ''),\n    inbox_id: String(conv.inbox_id ?? conv.inbox?.id ?? ''),\n    customer_message_at: toIso(b.created_at),\n    monitored_agent_id: String(assignee.id ?? ''),\n    monitored_agent_name: String(assignee.name ?? ''),\n    stage: 'WAITING_WARNING',\n    stage_started_at: now,\n    handoff_count: 0\n  };\n  return [{ json: { action: 'start', conversation_id, active: true, state: JSON.stringify(state) } }];\n}\n\nif (mt === 'outgoing' || mt === '1') {\n  const senderType = String(b.sender?.type ?? b.sender_type ?? '').toLowerCase();\n  if (senderType !== 'user') return [];\n  return [{ json: { action: 'stop', conversation_id, active: false } }];\n}\n\nreturn [];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        512,
+        384
+      ],
+      "id": "b07b9317-51a9-4f8c-bdbf-58fe0305c8b5",
+      "name": "Classify Message"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "4c00270f-1fe0-4b09-810c-03abc3770eaf",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "start",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        752,
+        384
+      ],
+      "id": "8024b803-7a11-4501-82d7-39b5391b8ea2",
+      "name": "Start Monitor?"
+    },
+    {
+      "parameters": {
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "value": "={{ $env.LATE_REPLY_TABLE_ID }}",
+          "mode": "id"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "conversation_id",
+              "keyValue": "={{ $json.conversation_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "conversation_id": "={{ $json.conversation_id }}",
+            "active": true,
+            "state": "={{ $json.state }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "conversation_id",
+              "displayName": "conversation_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1024,
+        272
+      ],
+      "id": "5c6bfee3-eb29-4aa7-9d4a-eaddc5c0cfa2",
+      "name": "Start or Reset Monitor"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ad24cd27-78c2-49e3-b51b-b5f7ab2b750a",
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "stop",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        1024,
+        512
+      ],
+      "id": "b11e4358-31c6-494b-b72c-7950b80e1137",
+      "name": "Stop Monitor?"
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "value": "={{ $env.LATE_REPLY_TABLE_ID }}",
+          "mode": "id"
+        },
+        "matchType": "allConditions",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "conversation_id",
+              "keyValue": "={{ $json.conversation_id }}"
+            }
+          ]
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "active": false
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "conversation_id",
+              "displayName": "conversation_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            },
+            {
+              "id": "active",
+              "displayName": "active",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "boolean",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "state",
+              "displayName": "state",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1312,
+        512
+      ],
+      "id": "9bae78b4-931d-499f-b33f-46621744315c",
+      "name": "Mark Replied"
+    }
+  ],
+  "connections": {
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Classify Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Message": {
+      "main": [
+        [
+          {
+            "node": "Start Monitor?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Monitor?": {
+      "main": [
+        [
+          {
+            "node": "Start or Reset Monitor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop Monitor?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stop Monitor?": {
+      "main": [
+        [
+          {
+            "node": "Mark Replied",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "6f5a2c6cb863f2d88c2397184ed6e5bc06fbc1ba2c47f06383f78b7877592b4a"
+  }
+}
