@@ -1,0 +1,654 @@
+{
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "f6b1a0e0-3bfa-41cb-8dc1-0c3c1866d10b",
+              "leftValue": "={{ $json.body.data.contextInfo.externalAdReply.ctwaClid }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        176,
+        32
+      ],
+      "id": "2de2a823-d775-4119-ad24-3ac29604b72d",
+      "name": "Is ctwaClid Exist?"
+    },
+    {
+      "parameters": {
+        "dataTableId": {
+          "__rl": true,
+          "value": "agOsd6J83OuiQFJ1",
+          "mode": "list",
+          "cachedResultName": "whatsapp_attribution",
+          "cachedResultUrl": "/projects/p3DJcv8ACUlkwzs9/datatables/agOsd6J83OuiQFJ1"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "phone": "={{ $('Prepare Attribution Record').item.json.phone }}",
+            "remoteJid": "={{ $('Prepare Attribution Record').item.json.remoteJid }}",
+            "ctwaClid": "={{ $('Prepare Attribution Record').item.json.ctwaClid }}",
+            "sourceId": "={{ $('Prepare Attribution Record').item.json.sourceId }}",
+            "sourceApp": "={{ $('Prepare Attribution Record').item.json.sourceApp }}",
+            "pushName": "={{ $('Prepare Attribution Record').item.json.pushName }}",
+            "messageId": "={{ $('Prepare Attribution Record').item.json.messageId }}",
+            "conversationText": "={{ $('Prepare Attribution Record').item.json.messageText }}",
+            "conversionSource": "={{ $('Prepare Attribution Record').item.json.conversionSource }}",
+            "instance": "={{ $('Prepare Attribution Record').item.json.instance }}",
+            "adTitle": "={{ $('Prepare Attribution Record').item.json.adTitle }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "remoteJid",
+              "displayName": "remoteJid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "ctwaClid",
+              "displayName": "ctwaClid",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "sourceId",
+              "displayName": "sourceId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "sourceApp",
+              "displayName": "sourceApp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "pushName",
+              "displayName": "pushName",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "messageId",
+              "displayName": "messageId",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "conversationText",
+              "displayName": "conversationText",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "conversionSource",
+              "displayName": "conversionSource",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "instance",
+              "displayName": "instance",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            },
+            {
+              "id": "adTitle",
+              "displayName": "adTitle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "readOnly": false,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        1072,
+        128
+      ],
+      "id": "809a3d4f-59a0-4396-8553-f60c8482cc2a",
+      "name": "Insert row"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b9a1872a-5e8e-48f6-97e9-20be2938bc5e",
+              "name": "phone",
+              "value": "={{ $json.body.data.key.remoteJid.replace('@s.whatsapp.net','') }}",
+              "type": "string"
+            },
+            {
+              "id": "9ddc946e-cb19-46c9-a70e-ea18addd9207",
+              "name": "remoteJid",
+              "value": "={{ $json.body.data.key.remoteJid }}",
+              "type": "string"
+            },
+            {
+              "id": "ab6a79fd-3269-4b7b-8091-b1ee98b5b268",
+              "name": "pushName",
+              "value": "={{ $json.body.data.pushName }}",
+              "type": "string"
+            },
+            {
+              "id": "7e3cf904-5904-4500-8fba-648cc32961d4",
+              "name": "ctwaClid",
+              "value": "={{ $json.body.data.contextInfo.externalAdReply.ctwaClid }}",
+              "type": "string"
+            },
+            {
+              "id": "666e1ef0-d95e-41ff-b171-c9db9a968d1f",
+              "name": "sourceId",
+              "value": "={{ $json.body.data.contextInfo.externalAdReply.sourceId }}",
+              "type": "string"
+            },
+            {
+              "id": "75883f17-e119-4ba3-a4ef-e50cd88ba2ac",
+              "name": "sourceApp",
+              "value": "={{ $json.body.data.contextInfo.externalAdReply.sourceApp }}",
+              "type": "string"
+            },
+            {
+              "id": "fa191758-15b6-4ded-b727-85c27a3324a3",
+              "name": "conversionSource",
+              "value": "={{ $json.body.data.contextInfo.conversionSource }}",
+              "type": "string"
+            },
+            {
+              "id": "4c0c1bbe-da53-49c2-9919-1fb1734292c4",
+              "name": "messageId",
+              "value": "={{ $json.body.data.key.id }}",
+              "type": "string"
+            },
+            {
+              "id": "4f0f3e72-c1b4-499d-a455-d59ca97aaf6a",
+              "name": "messageText",
+              "value": "={{ $json.body.data.message.conversation }}",
+              "type": "string"
+            },
+            {
+              "id": "3013f66e-752b-4741-b324-d4e0dbef57be",
+              "name": "instance",
+              "value": "={{ $json.body.instance }}",
+              "type": "string"
+            },
+            {
+              "id": "28265137-1ea6-4a0b-9f06-71a0c78fd8db",
+              "name": "adTitle",
+              "value": "={{ $json.body.data.contextInfo.externalAdReply.title || '' }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        400,
+        32
+      ],
+      "id": "c24f1d7e-aefc-433a-945e-eb9cf8a54eeb",
+      "name": "Prepare Attribution Record"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "agOsd6J83OuiQFJ1",
+          "mode": "list",
+          "cachedResultName": "whatsapp_attribution",
+          "cachedResultUrl": "/projects/p3DJcv8ACUlkwzs9/datatables/agOsd6J83OuiQFJ1"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "messageId",
+              "keyValue": "={{ $json.messageId }}"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        624,
+        32
+      ],
+      "id": "d490d631-6ef6-4850-85b0-510dd9191e35",
+      "name": "Check Existing Message",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "ee6d1853-f398-43e3-86cf-b7601a8cb2ed",
+              "leftValue": "={{ $json.id }}",
+              "rightValue": "",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        848,
+        32
+      ],
+      "id": "8962f6ea-47d1-4f38-95d5-08fe8ff4e8f6",
+      "name": "Attribution Already Exists?"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        -64
+      ],
+      "id": "538fd2cb-0581-47ce-9406-909f287036eb",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "chatwoot-purchase-event",
+        "options": {}
+      },
+      "id": "6b15ac65-2c7e-47d1-a6a4-e9bb08ed3ffa",
+      "name": "Chatwoot Order Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -48,
+        432
+      ],
+      "webhookId": "efa445d7-5751-48b4-b790-4971745617c0"
+    },
+    {
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\n\nif (body.event !== 'message_created') {\n  return [];\n}\n\nif (body.message_type !== 'outgoing') {\n  return [];\n}\n\nconst content = String(body.content || '');\n\nif (!content.includes('Your Order Confirmation')) {\n  return [];\n}\n\nconst lowerContent = content.toLowerCase();\n\nlet adTitle = null;\n\nconst hasGreatSuper = lowerContent.includes('great super');\nconst hasHappyTime = lowerContent.includes('happy time');\nconst hasZaiqa = lowerContent.includes('zaiqa ice cream');\n\nconst matchedBrands = [\n  hasGreatSuper,\n  hasHappyTime,\n  hasZaiqa\n].filter(Boolean).length;\n\n// Must match exactly one brand\nif (matchedBrands !== 1) {\n  return [];\n}\n\nif (hasGreatSuper) {\n  adTitle = 'Great Super';\n} else if (hasHappyTime) {\n  adTitle = 'Happy Time';\n} else if (hasZaiqa) {\n  adTitle = 'Zaiqa Ice Cream';\n}\n\nconst amountMatch = content.match(\n  /Total Amount:\\*?\\*?\\s*Rs\\.?\\s*([0-9,]+)/i\n);\n\nif (!amountMatch) {\n  return [];\n}\n\nconst amount = Number(\n  amountMatch[1].replace(/,/g, '')\n);\n\nconst phone =\n  body.conversation?.meta?.sender?.phone_number\n  ?.replace('+', '');\n\nif (!phone) {\n  return [];\n}\n\nreturn [\n  {\n    json: {\n      phone,\n      amount,\n      currency: 'PKR',\n      adTitle,\n      conversationId: body.conversation.id,\n      messageId: body.id,\n      content\n    }\n  }\n];"
+      },
+      "id": "fdbd70de-62c0-4831-846c-36672f37bc09",
+      "name": "Detect Order Confirmation",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        176,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "value": "agOsd6J83OuiQFJ1",
+          "mode": "list",
+          "cachedResultName": "whatsapp_attribution",
+          "cachedResultUrl": "/projects/p3DJcv8ACUlkwzs9/datatables/agOsd6J83OuiQFJ1"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "phone",
+              "keyValue": "={{$json.phone.replace('+','')}}"
+            },
+            {
+              "keyName": "adTitle",
+              "keyValue": "={{ $json.adTitle }}"
+            }
+          ]
+        }
+      },
+      "id": "0c9b83c0-c836-4816-b130-f1fcf42e17f3",
+      "name": "Find CTWA Attribution",
+      "type": "n8n-nodes-base.dataTable",
+      "typeVersion": 1.1,
+      "position": [
+        400,
+        352
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "const order = $('Detect Order Confirmation').first().json;\nconst attribution = $json;\n\nif (!attribution.ctwaClid) {\n  return [];\n}\n\n// Facebook Page IDs for each brand\nconst PAGE_IDS = {\n  'Great Super': '433662573159375',\n  'Happy Time': '1373628472492128',\n  'Zaiqa Ice Cream': '101203734833190'\n};\n\nconst pageId = PAGE_IDS[order.adTitle];\n\nif (!pageId) {\n  return [];\n}\n\nreturn [\n  {\n    json: {\n      event_name: \"Purchase\",\n\n      event_time: Math.floor(Date.now() / 1000),\n\n      event_id: `purchase_${order.conversationId}_${order.messageId}`,\n\n      amount: order.amount,\n      currency: order.currency,\n\n      conversationId: order.conversationId,\n      orderMessageId: order.messageId,\n\n      adTitle: order.adTitle,\n      pageId,\n\n      ctwaClid: attribution.ctwaClid,\n\n      whatsapp_business_account_id: \"114015011639670\",\n\n      phone: $input.first().json.phone,\n    }\n  }\n];"
+      },
+      "id": "49192d8b-a828-480a-bcd2-607e5cebdff7",
+      "name": "Prepare Meta Purchase",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1072,
+        432
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://graph.facebook.com/v23.0/1987705905520403/events",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"data\": [\n    {\n      \"event_name\": \"Purchase\",\n      \"event_time\": {{$json.event_time}},\n      \"event_id\": \"{{$json.event_id}}\",\n\n      \"action_source\": \"business_messaging\",\n      \"messaging_channel\": \"whatsapp\",\n\n      \"user_data\": {\n        \"page_id\": \"{{$json.pageId}}\",\n        \"whatsapp_business_account_id\": \"{{$json.whatsapp_business_account_id}}\",\n        \"ctwa_clid\": \"{{$json.ctwaClid}}\",\n        \"external_id\": [\n          \"{{$json.hashedPhone}}\"\n        ]\n      },\n\n      \"custom_data\": {\n        \"currency\": \"{{$json.currency}}\",\n        \"value\": {{$json.amount}},\n        \"order_id\": \"{{$json.conversationId}}\"\n      },\n\n      \"original_event_data\": {\n        \"event_name\": \"Purchase\",\n        \"event_time\": {{$json.event_time}}\n      }\n    }\n  ]\n}",
+        "options": {}
+      },
+      "id": "3e59f586-5a70-4139-8d56-8866e01c7e4e",
+      "name": "Send Purchase Event To Meta",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1520,
+        432
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "swhB7eDlJAfhNOfA",
+          "name": "Meta Conversions API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "evolution-ctwa-test",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2.1,
+      "position": [
+        -48,
+        32
+      ],
+      "id": "26188dc7-c7ab-4663-9fc0-999fc53dc6ec",
+      "name": "Evolution Message",
+      "webhookId": "fc62e97f-f195-4bbe-9a0b-459960152319"
+    },
+    {
+      "parameters": {
+        "jsCode": "const records = items.map(item => item.json);\n\nif (!records.length) {\n  return [];\n}\n\nrecords.sort((a, b) => {\n  return new Date(b.createdAt) - new Date(a.createdAt);\n});\n\nreturn [\n  {\n    json: records[0]\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        624,
+        352
+      ],
+      "id": "6b5fe138-d8ce-4717-a325-14fd38422006",
+      "name": "Select Latest Attribution"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        848,
+        432
+      ],
+      "id": "d2047939-8ae7-4a9e-8267-05a4ea292875",
+      "name": "Combine Order + Attribution"
+    },
+    {
+      "parameters": {
+        "value": "={{ $json.phone }}",
+        "dataPropertyName": "hashedPhone"
+      },
+      "type": "n8n-nodes-base.crypto",
+      "typeVersion": 2,
+      "position": [
+        1296,
+        432
+      ],
+      "id": "9ba609d6-2182-4f45-a170-2470e46a77a8",
+      "name": "Crypto"
+    }
+  ],
+  "connections": {
+    "Is ctwaClid Exist?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Attribution Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Attribution Record": {
+      "main": [
+        [
+          {
+            "node": "Check Existing Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Existing Message": {
+      "main": [
+        [
+          {
+            "node": "Attribution Already Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attribution Already Exists?": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Insert row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chatwoot Order Webhook": {
+      "main": [
+        [
+          {
+            "node": "Detect Order Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Order Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Find CTWA Attribution",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Combine Order + Attribution",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Find CTWA Attribution": {
+      "main": [
+        [
+          {
+            "node": "Select Latest Attribution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Meta Purchase": {
+      "main": [
+        [
+          {
+            "node": "Crypto",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evolution Message": {
+      "main": [
+        [
+          {
+            "node": "Is ctwaClid Exist?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Latest Attribution": {
+      "main": [
+        [
+          {
+            "node": "Combine Order + Attribution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Order + Attribution": {
+      "main": [
+        [
+          {
+            "node": "Prepare Meta Purchase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Crypto": {
+      "main": [
+        [
+          {
+            "node": "Send Purchase Event To Meta",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "pinData": {},
+  "meta": {
+    "instanceId": "6f5a2c6cb863f2d88c2397184ed6e5bc06fbc1ba2c47f06383f78b7877592b4a"
+  }
+}
