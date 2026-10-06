@@ -137,7 +137,14 @@
             }
           ]
         },
-        "options": {}
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "neverError": true
+            }
+          }
+        }
       },
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
@@ -150,7 +157,7 @@
     },
     {
       "parameters": {
-        "jsCode": "const row = $('Loop Over Due').item.json;\nconst live = $json ?? {};\n\nconst toMs = (v) => {\n  if (v === null || v === undefined || v === '') return 0;\n\n  if (typeof v === 'number') {\n    return v < 1e12 ? v * 1000 : v;\n  }\n\n  const n = Number(v);\n\n  if (!Number.isNaN(n) && String(v).trim() !== '') {\n    return n < 1e12 ? n * 1000 : n;\n  }\n\n  const t = Date.parse(v);\n\n  return Number.isNaN(t) ? 0 : t;\n};\n\n\n// -----------------------------\n// Conversation status\n// -----------------------------\n\nconst status = String(\n  live.status ?? ''\n).toLowerCase();\n\n\n// -----------------------------\n// Current assigned agent\n// -----------------------------\n\nconst assignee =\n  live.meta?.assignee ??\n  live.assignee ??\n  {};\n\nconst current_agent_id = String(\n  assignee.id ?? ''\n);\n\nconst current_agent_name = String(\n  assignee.name ??\n  assignee.available_name ??\n  ''\n);\n\nconst current_agent_role = String(\n  assignee.role ?? ''\n).toLowerCase();\n\n\n// -----------------------------\n// Customer details\n// -----------------------------\n\nconst customer_name =\n  live.meta?.sender?.name ||\n  live.sender?.name ||\n  'Unknown';\n\n\n// -----------------------------\n// Messages\n// -----------------------------\n\nconst messages =\n  Array.isArray(live.messages)\n    ? live.messages\n    : Array.isArray(live.payload?.messages)\n      ? live.payload.messages\n      : [];\n\n\n// -----------------------------\n// Last customer message\n// -----------------------------\n\nconst last_customer_message = messages\n  .filter(m =>\n    String(m.message_type).toLowerCase() === 'incoming'\n  )\n  .sort((a, b) =>\n    toMs(b.created_at) - toMs(a.created_at)\n  )[0]?.content || 'No customer message found';\n\n\n// -----------------------------\n// Conversation URL\n// -----------------------------\n\nconst conversation_url =\n  `${$('Loop Over Due').item.json.chatwoot_url || 'https://chatwoot.distributorflow.com'}/app/accounts/${row.account_id}/conversations/${row.display_id}`;\n\n\n// -----------------------------\n// Customer replied?\n// -----------------------------\n\nconst customerTs = toMs(\n  row.customer_message_at\n);\n\nconst replied = messages.some((m) => {\n\n  const mt = String(\n    m.message_type ?? ''\n  ).toLowerCase();\n\n  const outgoing =\n    mt === 'outgoing' ||\n    mt === '1';\n\n  if (!outgoing) {\n    return false;\n  }\n\n  if (m.private === true) {\n    return false;\n  }\n\n  const senderType = String(\n    m.sender?.type ??\n    m.sender_type ??\n    ''\n  ).toLowerCase();\n\n  if (senderType !== 'user') {\n    return false;\n  }\n\n  return toMs(m.created_at) >= customerTs;\n});\n\n\n// -----------------------------\n// Decide action\n// -----------------------------\n\nlet decision = 'reset';\nlet stop_stage = '';\n\nif (replied) {\n\n  decision = 'stop';\n  stop_stage = 'REPLIED';\n\n} else if (\n  status === 'resolved' ||\n  status === 'closed'\n) {\n\n  decision = 'stop';\n  stop_stage = 'RESOLVED';\n\n} else if (\n  current_agent_role === 'administrator'\n) {\n\n  decision = 'stop';\n  stop_stage = 'ADMIN_IGNORED';\n\n} else if (!current_agent_id) {\n\n  decision = 'reassign';\n\n} else if (\n  String(row.monitored_agent_id ?? '') !==\n  current_agent_id\n) {\n\n  decision = 'reset';\n\n} else if (\n  row.stage === 'WAITING_WARNING'\n) {\n\n  decision = 'warn';\n\n} else if (\n  row.stage === 'WAITING_REASSIGN'\n) {\n\n  decision = 'reassign';\n}\n\n\n// -----------------------------\n// Output\n// -----------------------------\n\nreturn [{\n  json: {\n    ...row,\n\n    current_agent_id,\n    current_agent_name,\n    current_agent_role,\n\n    customer_name,\n    last_customer_message,\n    conversation_url,\n\n    decision,\n    stop_stage\n  }\n}];"
+        "jsCode": "const row = $('Loop Over Due').item.json;\nconst response = $json ?? {};\n\n// Because \"Include Response Headers and Status\" is enabled\nconst httpStatus = Number(\n  response.statusCode ??\n  response.status_code ??\n  200\n);\n\nconst live =\n  response.body ??\n  response;\n\n\n// -----------------------------\n// Helper\n// -----------------------------\n\nconst toMs = (v) => {\n  if (v === null || v === undefined || v === '') return 0;\n\n  if (typeof v === 'number') {\n    return v < 1e12 ? v * 1000 : v;\n  }\n\n  const n = Number(v);\n\n  if (!Number.isNaN(n) && String(v).trim() !== '') {\n    return n < 1e12 ? n * 1000 : n;\n  }\n\n  const t = Date.parse(v);\n\n  return Number.isNaN(t) ? 0 : t;\n};\n\n\n// -----------------------------\n// Conversation URL\n// -----------------------------\n\nconst conversation_url =\n  `${row.chatwoot_url || 'https://chatwoot.distributorflow.com'}/app/accounts/${row.account_id}/conversations/${row.display_id}`;\n\n\n// -----------------------------\n// Conversation no longer exists\n// -----------------------------\n\nif (httpStatus === 404 || httpStatus === 410) {\n  return [{\n    json: {\n      ...row,\n\n      current_agent_id: '',\n      current_agent_name: '',\n      current_agent_role: '',\n\n      customer_name: 'Unknown',\n      last_customer_message: 'Conversation no longer exists',\n      conversation_url,\n\n      decision: 'stop',\n      stop_stage: 'NOT_FOUND',\n\n      missing_conversation: true,\n      http_status: httpStatus\n    }\n  }];\n}\n\n\n// -----------------------------\n// Don't silently ignore other API errors\n// -----------------------------\n\nif (httpStatus >= 400) {\n  throw new Error(\n    `Chatwoot Get Conversation failed with HTTP ${httpStatus}: ` +\n    JSON.stringify(live)\n  );\n}\n\n\n// -----------------------------\n// Conversation status\n// -----------------------------\n\nconst status = String(\n  live.status ?? ''\n).toLowerCase();\n\n\n// -----------------------------\n// Current assigned agent\n// -----------------------------\n\nconst assignee =\n  live.meta?.assignee ??\n  live.assignee ??\n  {};\n\nconst current_agent_id = String(\n  assignee.id ?? ''\n);\n\nconst current_agent_name = String(\n  assignee.name ??\n  assignee.available_name ??\n  ''\n);\n\nconst current_agent_role = String(\n  assignee.role ?? ''\n).toLowerCase();\n\n\n// -----------------------------\n// Customer details\n// -----------------------------\n\nconst customer_name =\n  live.meta?.sender?.name ||\n  live.sender?.name ||\n  'Unknown';\n\n\n// -----------------------------\n// Messages\n// -----------------------------\n\nconst messages =\n  Array.isArray(live.messages)\n    ? live.messages\n    : Array.isArray(live.payload?.messages)\n      ? live.payload.messages\n      : [];\n\n\n// -----------------------------\n// Last customer message\n// -----------------------------\n\nconst last_customer_message = messages\n  .filter(m =>\n    String(m.message_type).toLowerCase() === 'incoming'\n  )\n  .sort((a, b) =>\n    toMs(b.created_at) - toMs(a.created_at)\n  )[0]?.content || 'No customer message found';\n\n\n// -----------------------------\n// Customer replied?\n// -----------------------------\n\nconst customerTs = toMs(\n  row.customer_message_at\n);\n\nconst replied = messages.some((m) => {\n\n  const mt = String(\n    m.message_type ?? ''\n  ).toLowerCase();\n\n  const outgoing =\n    mt === 'outgoing' ||\n    mt === '1';\n\n  if (!outgoing) {\n    return false;\n  }\n\n  if (m.private === true) {\n    return false;\n  }\n\n  const senderType = String(\n    m.sender?.type ??\n    m.sender_type ??\n    ''\n  ).toLowerCase();\n\n  if (senderType !== 'user') {\n    return false;\n  }\n\n  return toMs(m.created_at) >= customerTs;\n});\n\n\n// -----------------------------\n// Decide action\n// -----------------------------\n\nlet decision = 'reset';\nlet stop_stage = '';\n\nif (replied) {\n\n  decision = 'stop';\n  stop_stage = 'REPLIED';\n\n} else if (\n  status === 'resolved' ||\n  status === 'closed'\n) {\n\n  decision = 'stop';\n  stop_stage = 'RESOLVED';\n\n} else if (\n  current_agent_role === 'administrator'\n) {\n\n  decision = 'stop';\n  stop_stage = 'ADMIN_IGNORED';\n\n} else if (!current_agent_id) {\n\n  decision = 'reassign';\n\n} else if (\n  String(row.monitored_agent_id ?? '') !==\n  current_agent_id\n) {\n\n  decision = 'reset';\n\n} else if (\n  row.stage === 'WAITING_WARNING'\n) {\n\n  decision = 'warn';\n\n} else if (\n  row.stage === 'WAITING_REASSIGN'\n) {\n\n  decision = 'reassign';\n}\n\n\n// -----------------------------\n// Output\n// -----------------------------\n\nreturn [{\n  json: {\n    ...row,\n\n    current_agent_id,\n    current_agent_name,\n    current_agent_role,\n\n    customer_name,\n    last_customer_message,\n    conversation_url,\n\n    decision,\n    stop_stage,\n\n    http_status: httpStatus\n  }\n}];"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
@@ -189,7 +196,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        9408,
+        9856,
         2592
       ],
       "id": "82c4f17e-fdc8-4b33-88ce-65c6a6509889",
@@ -203,7 +210,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        11200,
+        11648,
         2272
       ],
       "id": "b1bd52d8-1ede-4392-a008-d6e188eeac5c",
@@ -237,7 +244,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        9632,
+        10080,
         2688
       ],
       "id": "964affec-47a8-4be3-90d5-69545ce28160",
@@ -251,7 +258,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        11200,
+        11648,
         2464
       ],
       "id": "c5381595-9f5a-4a54-afac-c71311a805cf",
@@ -285,7 +292,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        9856,
+        10304,
         2784
       ],
       "id": "c272a516-25cc-465b-a331-73a885c0f490",
@@ -298,7 +305,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        11200,
+        11648,
         2656
       ],
       "id": "50e3a9ec-41dd-42e1-86c9-e13f1bcb811e",
@@ -325,7 +332,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        10080,
+        10528,
         2880
       ],
       "id": "efbc4013-6125-4122-90a9-91ccf50f215d",
@@ -338,7 +345,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        10528,
+        10976,
         2880
       ],
       "id": "48bc8b5b-787e-4989-a69f-0570a7dd8304",
@@ -372,7 +379,7 @@
       "type": "n8n-nodes-base.if",
       "typeVersion": 2.3,
       "position": [
-        10752,
+        11200,
         2880
       ],
       "id": "546d50ee-dca4-42e5-9966-8a7521d099f4",
@@ -403,7 +410,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        10976,
+        11424,
         2848
       ],
       "id": "c22eb220-a414-4958-bc9d-1f0926a6561c",
@@ -416,7 +423,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        11200,
+        11648,
         2848
       ],
       "id": "ee2bfa7d-2f42-493e-89a9-3c3aa48e0739",
@@ -447,7 +454,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        10976,
+        11424,
         3040
       ],
       "id": "2223d5e3-97d3-43a8-b70d-7565d1d11be0",
@@ -478,7 +485,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        11424,
+        11872,
         3136
       ],
       "id": "d18b537b-4f39-4a30-9284-2c43e731e9db",
@@ -549,7 +556,7 @@
       "type": "n8n-nodes-base.dataTable",
       "typeVersion": 1.1,
       "position": [
-        11424,
+        11872,
         2784
       ],
       "id": "8c0614fc-18e3-4d66-bd3f-084445ee33af",
@@ -576,7 +583,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        10304,
+        10752,
         2880
       ],
       "id": "ab8c8b8c-be5e-4db6-bc55-e32f599aedc7",
@@ -590,7 +597,7 @@
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        11200,
+        11648,
         3040
       ],
       "id": "6f1b9b19-546f-4f1c-935d-6fb8f7959b6a",
@@ -617,7 +624,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        10752,
+        11200,
         2656
       ],
       "id": "257b9cba-8991-4466-8ac5-c784f49cd3db",
@@ -644,7 +651,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.5,
       "position": [
-        10976,
+        11424,
         2656
       ],
       "id": "f2a4f319-2a9d-48a7-a934-ca29d4bfe78a",
@@ -675,7 +682,7 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        11648,
+        12096,
         3136
       ],
       "id": "d212dbc3-7f04-43ef-b7df-e398e4e5ed5b",
@@ -717,7 +724,7 @@
       "typeVersion": 4.5,
       "position": [
         9408,
-        2432
+        2592
       ],
       "id": "6ad035e5-0c9e-4fd7-983d-b1f5f5b7c1c7",
       "name": "Get Existing Alert Conversations"
@@ -731,7 +738,7 @@
       "typeVersion": 2,
       "position": [
         9632,
-        2432
+        2592
       ],
       "id": "764b481d-be09-40a1-b6e3-533057ce30e0",
       "name": "Attach Existing Alert Conversations"
